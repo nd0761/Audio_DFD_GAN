@@ -53,7 +53,7 @@ def train_epoch(dataloader, gen, disc,
 
         if cur_step % display_step == 0 and cur_step > 0:
             # print(f"Step {cur_step}: Generator loss: {mean_generator_loss}, discriminator loss: {mean_discriminator_loss}")
-            pbar.set_description(f"Epoch {epoch} Step {cur_step}: Generator loss: {mean_generator_loss:.4f}, discriminator loss: {mean_discriminator_loss:.4f}   Fake {disc_fake_loss:.4f}   Real{disc_real_loss:.4f}")
+            pbar.set_description(f"Epoch {epoch} Step {cur_step}: Generator loss: {mean_generator_loss:.4f}, discriminator loss: {mean_discriminator_loss:.4f}  Last Beatch: Fake {disc_fake_loss:.4f}   Real{disc_real_loss:.4f}")
             mean_generator_loss = 0
             mean_discriminator_loss = 0
 

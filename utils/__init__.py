@@ -8,5 +8,6 @@ from model.GAN import Generator, Discriminator
 from model.whisper_models import Whispers
 
 from training.loss import generator_loss, discriminator_loss
-from training.metrics import test_metrics, test_data
+from training.metrics import test_metrics, test_data, set_up_metrics_list
 from training.train import train
+from training.distribution_visualizer import visualize

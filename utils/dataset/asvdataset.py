@@ -33,7 +33,7 @@ class ASV_DATASET(Dataset):
         self.files_loc   = os.path.join(asv_directory, type, type,  f"ASVspoof2019_{type}_{category}", 'flac')
 
         self.read_target()
-        self.read_data()
+        # self.read_data()
         print("Finished reading")
 
         # if category == 'train':
@@ -43,14 +43,23 @@ class ASV_DATASET(Dataset):
             self.undersample()
         if class_balance == 'oversample':
             self.oversample()
+
+        self.set_up_indexes()
+
+    def read_audio_file(self, file_name):
+        path = os.path.join(self.files_loc, file_name+'.flac')
+
+        if not os.path.exists(path): return None, None
+
+        data, samplerate = sf.read(path)  
+        data = torch.from_numpy(data)
+        data = self.preproc_audio(data)
+
+        return data, samplerate
     
     def read_target(self):
-        self.targets = {}
-        self.indexing = {}
-
-        last_idx = 0
-
-        # g, b = 0, 0
+        self.targets = pd.DataFrame(columns=['file_name', 'audio', 'is_original', 'generator_type', 'sample_rate'])
+        updated_filenames = set()
 
         with open(self.targets_loc, 'r') as f:
             lines = f.readlines()
@@ -58,62 +67,31 @@ class ASV_DATASET(Dataset):
                 split_line  = line.split(' ')
 
                 file_name   = split_line[1]
+                if file_name in updated_filenames: continue
+                updated_filenames.add(file_name)
+
                 is_original = (self.bonafide_class if (split_line[-1].rstrip() == 'bonafide') else 1-self.bonafide_class)
-                # g += (is_original == self.bonafide_class)
-                # b += (1 - is_original)
                 gen_type    = ' '.join([split_line[-2], split_line[-3]])
-                
-                if file_name not in self.targets:
-                    self.targets[file_name] = {'audio': None, 'sample_rate':None, 'is_original': is_original, 'generator_type': gen_type}
-                    self.indexing[last_idx] = file_name
-                    last_idx += 1
-                else:
-                    self.targets[file_name] = {'audio': None, 'sample_rate':None, 'is_original': is_original, 'generator_type': gen_type}
+
+                audio, sr = self.read_audio_file(file_name)
+                if audio is None: continue
+
+                data = {
+                    'file_name': [file_name],
+                    'audio': [audio[None, :]],
+                    'is_original': [is_original],
+                    'generator_type': [gen_type],
+                    'sample_rate': [sr]
+                }
+                data_df = pd.DataFrame(data)
+                self.targets = pd.concat([self.targets, data_df])
+        self.targets = self.targets.reset_index()
+        print("Size of dataset",len(self.targets))
 
     def preproc_audio(self, data):
         data = apply_pad(data, FRAMES_NUMBER)
         return data
 
-    def read_data(self):
-        bad_countet = 0
-        max_len = 0
-        for file in tqdm(os.listdir(self.files_loc), desc='Reading audio'):
-            if not file.endswith('flac'): continue
-            file_name = file.split('.')[0]
-            path = os.path.join(self.files_loc, file)
-            
-            if file_name not in self.targets: 
-                bad_countet += 1
-                continue
-            data, samplerate = sf.read(path)  
-            data = torch.from_numpy(data)
-            data = self.preproc_audio(data)
-            # if bad_countet == 0:
-            #     print('AUDIO SHAPE', data.shape)
-            #     bad_countet += 1
-            self.targets[file_name]['audio']        = data[None, :]
-            self.targets[file_name]['sample_rate']  = samplerate
-            max_len = max(max_len, data.shape[0])
-        # print("CNT of Files without a label", bad_countet)
-        # print("MAX len", max_len)
-        data = {
-            'file_name': [],
-            'audio': [],
-            'is_original': [],
-            'generator_type': [],
-            'sample_rate': []
-        }
-        
-        for file_name, content in self.targets.items():
-            data['file_name'].append(file_name)
-            data['audio'].append(content['audio'])
-            data['is_original'].append(content['is_original'])
-            data['generator_type'].append(content['generator_type'])
-            data['sample_rate'].append(content['sample_rate'])
-        
-        self.targets = pd.DataFrame(data)
-        self.targets.reset_index()
-    
     def undersample_all(self, class_amount):
         minority_class = self.targets[self.targets['is_original'] != self.targets['is_original'].mode()[0]]
         majority_class = self.targets[self.targets['is_original'] == self.targets['is_original'].mode()[0]]
@@ -158,6 +136,10 @@ class ASV_DATASET(Dataset):
         print('\n------\nBONAFIDE  samples', len(self.targets[self.targets['is_original'] == self.bonafide_class]), 
               '\nGENERATED samples', len(self.targets[self.targets['is_original'] != self.bonafide_class]))
     
+    def set_up_indexes(self):
+        self.class_indeces = {  self.bonafide_class: self.targets.index[self.targets['is_original'] ==   self.bonafide_class].to_numpy(),
+                              1-self.bonafide_class: self.targets.index[self.targets['is_original'] == 1-self.bonafide_class].to_numpy()}
+
     def __len__(self):
         return len(self.targets)
     
