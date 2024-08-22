@@ -10,4 +10,4 @@ from model.whisper_models import Whispers
 from training.loss import generator_loss, discriminator_loss, whisp_loss
 from training.metrics import test_metrics, set_up_metrics_list
 from training.train import train
-from training.distribution_visualizer import visualize, visualize_separate
+from training.distribution_visualizer import visualize_separate

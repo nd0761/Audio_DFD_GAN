@@ -6,15 +6,16 @@ class Generator(nn.Module):
 
         self.aud_dim = audio_dim
         self.hid_dim = hidden_dim
+        # self.last_dim = last_dim
 
-        dims = [1] + [16 * pow(2, i) for i in range(0, hidden_dim+1)] # 1 16 32 64 32 16
-        dims += [16 * pow(2, i) for i in range(hidden_dim-1, -1, -1)]
+        dims =  [pow(2, i) for i in range(0, hidden_dim+1)]        # 2^0                ... 2^hidden_dim
+        dims += [pow(2, i) for i in range(hidden_dim-1, 0, -1)]    # 2^(hidden_dim-1)   ... 2^1
 
         list_of_layers = [
             self.generator_block(dims[i], dims[i+1]) 
             for i in range(len(dims)-1)
         ] + [
-            nn.Conv1d(dims[-1], 1, kernel_size=15, stride=1, padding=7), # [1, 190_000]
+            nn.Conv1d(dims[-1], 1, kernel_size=15, stride=1, padding=7),
             nn.Tanh()
         ]
 
@@ -28,7 +29,7 @@ class Generator(nn.Module):
     
     def generator_block(self, in_dim, out_dim):
         return nn.Sequential(
-            nn.Conv1d(in_dim, out_dim, kernel_size=15, stride=1, padding=7),  # Output: [16, 190_000]
+            nn.Conv1d(in_dim, out_dim, kernel_size=15, stride=1, padding=7),
             nn.ReLU(inplace=True),
         )
 
@@ -40,14 +41,14 @@ class Discriminator(nn.Module):
         self.hid_dim = hidden_dim
         self.out_dim = output_dim
 
-        dims = [1] + [16 * pow(2, i) for i in range(0, hidden_dim+1)] # 1 16 32 64 128
+        dims = [pow(2, i) for i in range(0, hidden_dim+1)]  # 2^0 ... 2^hidden_dim
 
         list_of_layers = [
             self.discriminator_block(dims[i], dims[i+1])
             for i in range(len(dims)-1)
-        ]+[
-            nn.Flatten(),
-            nn.Linear(dims[-1] * audio_dim, output_dim),
+        ]+[ # [dims[-1], audio_dim]
+            nn.Flatten(),# [dims[-1] * audio_dim, 1]
+            nn.Linear(dims[-1] * audio_dim, output_dim), # [output_dim, 1]
             nn.Sigmoid()
         ]
 
@@ -60,6 +61,6 @@ class Discriminator(nn.Module):
     
     def discriminator_block(self, in_dim, out_dim):
         return nn.Sequential(
-            nn.Conv1d(in_dim, out_dim, kernel_size=15, stride=1, padding=7),  # Output: [16, 190_000]
+            nn.Conv1d(in_dim, out_dim, kernel_size=15, stride=1, padding=7),
             nn.LeakyReLU(0.2, inplace=True),
         )

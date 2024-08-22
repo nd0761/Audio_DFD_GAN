@@ -13,7 +13,7 @@ def AUC(real, pred):
 def EER(real, pred, pos_label):
     try:
         fpr, tpr, threshold = sklearn.metrics.roc_curve(real,pred,pos_label=pos_label)
-        fnr = 1- tpr
+        fnr = 1 - tpr
         eer = fpr[np.nanargmin(np.absolute((fnr-fpr)))]
         return eer
     except:

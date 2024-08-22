@@ -143,7 +143,7 @@ def train(train_with_wisper,
                                os.path.join(logs_dir, 'distr', f'epoch_{epoch}_density_distribution_WHISP.png'))
 
             with open(os.path.join(logs_dir, 'metrics', f"sample_iteration_{epoch}.json"), "w") as outfile: 
-                json.dump(metrics, outfile)
+                json.dump(metrics, outfile, indent=2)
             
             ckpt_path = os.path.join(ckpt_dir, f'epoch{epoch}.pt')
             torch.save({
@@ -233,9 +233,9 @@ def train_epoch(train_with_wisper, dataloader, dataset,
             mean_whisp_loss         = sum(mean_whisp_loss) / len(mean_whisp_loss)
             # print(f"Step {cur_step}: Generator loss: {mean_generator_loss}, discriminator loss: {mean_discriminator_loss}")
             pbar.set_description(f"Epoch {epoch} ✧Step {cur_step}✧  "+
-f"Gen L: {mean_generator_loss:.4f} || "+ 
-f"Dis L: {mean_discriminator_loss:.4f} || "+
-f"Whi L: {mean_whisp_loss:.4f}")
+f"Gen L: {mean_generator_loss:.3f} || "+ 
+f"Dis L: {mean_discriminator_loss:.3f} || "+
+f"Whi L: {mean_whisp_loss:.3f}")
 # f"Last Batch    loss: Fake {disc_fake_loss:.4f}   Real{disc_real_loss:.4f}")
             mean_generator_loss     = []
             mean_discriminator_loss = []

@@ -31,6 +31,7 @@ class Whispers(nn.Module):
     def freeze_model(self, model):
         for param in model.parameters():
             param.requires_grad = False
+        model.eval()
         return model
     
     def load_model(self, model_directory):
@@ -51,8 +52,14 @@ class Whispers(nn.Module):
         return model
 
     def detectors_prediction(self, batch):
+
+        def run_pred(model, batch):
+            model.eval()
+            return model(batch).squeeze(1)
+    
         with torch.no_grad():
-            batch_pred = [model(batch).squeeze(1) for model in self.whisper_models]
+
+            batch_pred = [run_pred(model, batch) for model in self.whisper_models]
             batch_pred = [torch.sigmoid(t) for t in batch_pred]
             batch_pred_label = [(t + 0.5).int() for t in batch_pred]
             

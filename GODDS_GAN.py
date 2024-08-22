@@ -55,24 +55,24 @@ device = 'cuda:2' if torch.cuda.is_available() else 'cpu'
 if __name__ == "__main__":
     set_seed(3407)
 
-    bonafide_class      = 0
+    bonafide_class      = 0     # Bonafide class in the chosen dataset, notice that 'whisper' models used for training instead use bonafide = 1, therefore, during training, their predictions are reversed
 
-    train_with_wisper   = True
+    train_with_wisper   = True  # Toggle whether whisper models are used in trining or only GAN is trained
 
-    data_sample_size    = 2500  # 100 - Debugging| 2500 - full training
-    gen_fake            = False # True - Debug   | False - full training
+    data_sample_size    = 2500  # 100 - Debugging| 2500 - full training     Number of samples chosen from both training and test datasets
+    gen_fake            = False # True - Debug   | False - full training    Toggle used in debugging that creates random audio instead of reading ASV dataset
 
-    input_size          = 190_000
-    hidden_dim_gen      = 3
-    hidden_dim_disc     = 1
-    output_size         = 1
+    input_size          = 190_000   # Dimensionality of audio 
+    hidden_dim_gen      = 6         # The depth of Generator model
+    hidden_dim_disc     = 2         # The depth of Discriminator model
+    output_size         = 1         # Output size, prediction of wether the discriminator predicts an audio as noised or non noised
 
-    batch_size          = 8
+    batch_size          = 8         # Batch size used in training
 
-    lr                  = 1e-4
+    lr                  = 1e-4      # Learning rate used in training
 
-    bootstrap_iterations= 1 #5
-    n_epochs            = 50 #15
+    bootstrap_iterations= 1 #5      Number of iterations for bootstrapping 
+    n_epochs            = 50 #15    Number of epochs 
 
 
     # Generator & Optimizer for Generator
@@ -83,7 +83,13 @@ if __name__ == "__main__":
     disc = Discriminator(input_size, hidden_dim=hidden_dim_disc, output_dim=output_size).to(device)
     disc_opt = torch.optim.Adam(disc.parameters(), lr=lr)
 
+
+    # Whisper models & Optimizer for Whisper models
     whisper_model_config_directory = '/tank/local/ndf3868/GODDS/GAN/whisper_config/finetuned_ITW'
+
+    # IN THE WILD IN vss5
+    # InTheWild: /tank/local/hgi0312/data/release_in_the_wild
+    # metadata in csv, /tank/local/ndf3868/GODDS/GAN/checkpoints/datasets/inthewild_test_ids.pickle has ids for TEST
 
     whisper_models_direstories = [
         # models trained on Marco's test split (from pre-trained checkpoint)
@@ -95,31 +101,29 @@ if __name__ == "__main__":
         # '/tank/local/ndf3868/GODDS/GAN/whisper_config/finetuned_ITW/whisper_lcnn_20240616_060610',
         # '/tank/local/ndf3868/GODDS/GAN/whisper_config/finetuned_ITW/whisper_lfcc_mesonet_20240615_165928',
         # '/tank/local/ndf3868/GODDS/GAN/whisper_config/finetuned_ITW/whisper_mesonet_20240616_070134',
-
-        # '/tank/local/ndf3868/GODDS/deepfake-whisper/src/models/whisper_lcnn/20240512_000000',
-        # '/tank/local/ndf3868/GODDS/deepfake-whisper/src/models/whisper_mesonet/20240512_000000',
-        # '/tank/local/ndf3868/GODDS/deepfake-whisper/src/models/whisper_mfcc_lcnn/20240516_005202',
-        # '/tank/local/ndf3868/GODDS/deepfake-whisper/src/models/whisper_mfcc_mesonet/20240513_131017',
-        # '/tank/local/ndf3868/GODDS/deepfake-whisper/src/models/whisper_mfcc_specrnet/20240516_030405',
-        # '/tank/local/ndf3868/GODDS/deepfake-whisper/src/models/whisper_specrnet/20240512_000000',
     ]
     whisp = None
     whisp_opt = None
     whisp     = Whispers(whisper_models_direstories, output_size, device).to(device) # for whisper bonafide class == 1
     whisp_opt = torch.optim.Adam(whisp.process.parameters(), lr=lr)
     set_seed(3407)
-
+    # ----Debug----
     # audio_samples = torch.rand(size=(8, input_size), dtype=torch.float32) - 0.5
     # targets = torch.randint(low=0, high=2, size=(8, 1))
 
     # rand_pred = whisp.detectors_prediction(audio_samples.to(device))
     # print(rand_pred)
+    # rand_pred = whisp.detectors_prediction(audio_samples.to(device))
+    # print(rand_pred)
+    # rand_pred = whisp.detectors_prediction(audio_samples.to(device))
+    # print(rand_pred)
 
     criterion = nn.BCELoss()
 
+    # Loading up datasets
     asv_directory = '/tank/local/ndf3868/GODDS/datasets/ASV'
     print("reading TRAIN dataset")
-    train_dataset = ASV_DATASET(asv_directory, 'train', 'LA', class_balance=None, gen_fake=gen_fake) #oversample undersample undersample_all
+    train_dataset = ASV_DATASET(asv_directory, 'train', 'LA', class_balance=None, gen_fake=gen_fake) #it supports oversample, undersample, and undersample_all but preferably use SubsetRandomSampler
     print("reading TEST  dataset")
     test_dataset  = ASV_DATASET(asv_directory, 'dev',   'LA', class_balance=None, gen_fake=gen_fake)
 
@@ -131,7 +135,6 @@ if __name__ == "__main__":
 
         print("sampling TRAIN dataset for bootstrap iteration", _)
         sampler = SubsetRandomSampler(get_balanced_indeces(dataset=train_dataset, n_samples_per_class=data_sample_size, shuffle=True))
-        # dataset = CustomAudioDataset(audio_samples, targets)
         train_dataloader = DataLoader(train_dataset, batch_size=batch_size, sampler=sampler)
 
         logs_dir = '/tank/local/ndf3868/GODDS/GAN/logs'
