@@ -1,0 +1,21 @@
+checkpoint:
+  path: models/finetuned_ITW/whisper_lfcc_mesonet_20240615_165928/ckpt.pth
+data:
+  path: /home/jnb5885/in_the_wild
+  seed: 42
+  test_subset: subsets/ITW_marco.npy
+model:
+  id: whisper_lfcc_mesonet
+  name: whisper_frontend_mesonet
+  optimizer:
+    lr: 0.0001
+    weight_decay: 0.0001
+  parameters:
+    fc1_dim: 1024
+    freeze_encoder: true
+    frontend_algorithm:
+    - lfcc
+    input_channels: 2
+training:
+  batch_size: 16
+  max_epochs: 5

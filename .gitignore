@@ -1,3 +1,5 @@
 checkpoints/*
-whisper_config/*
-logs/*
+whisper_config/**/*.pth
+logs/**/*.png
+logs/**/*.json
+

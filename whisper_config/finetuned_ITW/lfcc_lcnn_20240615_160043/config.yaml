@@ -1,0 +1,19 @@
+checkpoint:
+  path: models/finetuned_ITW/lfcc_lcnn_20240615_160043/ckpt.pth
+data:
+  path: /home/jnb5885/in_the_wild
+  seed: 42
+  test_subset: subsets/ITW_marco.npy
+model:
+  id: lfcc_lcnn
+  name: lcnn
+  optimizer:
+    lr: 0.0001
+    weight_decay: 0.0001
+  parameters:
+    frontend_algorithm:
+    - lfcc
+    input_channels: 1
+training:
+  batch_size: 16
+  max_epochs: 5

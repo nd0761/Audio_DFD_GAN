@@ -1,0 +1,16 @@
+checkpoint:
+  path: models/finetuned_ITW/rawnet3_20240615_224507/ckpt.pth
+data:
+  path: /home/jnb5885/in_the_wild
+  seed: 42
+  test_subset: subsets/ITW_marco.npy
+model:
+  id: rawnet3
+  name: rawnet3
+  optimizer:
+    lr: 0.001
+    weight_decay: 5.0e-05
+  parameters: {}
+training:
+  batch_size: 16
+  max_epochs: 5
