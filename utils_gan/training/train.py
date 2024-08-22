@@ -105,6 +105,7 @@ def train(train_with_wisper,
             n_epochs, device,
             logs_dir, ckpt_dir):
 
+    #----DEBUG----
 
     # audio_samples = torch.rand(size=(4, 190_000), dtype=torch.float32) - 0.5
     # targets = torch.randint(low=0, high=2, size=(8, 1))
@@ -141,8 +142,6 @@ def train(train_with_wisper,
             visualize_separate(predictions['whisp']['pred noised'], predictions['whisp']['pred non-noised'], 
                                os.path.join(logs_dir, 'distr', f'epoch_{epoch}_density_distribution_WHISP.png'))
 
-            # timestamp = f'{get_current_timestamp()}'
-            # timestamp = 'None'
             with open(os.path.join(logs_dir, 'metrics', f"sample_iteration_{epoch}.json"), "w") as outfile: 
                 json.dump(metrics, outfile)
             
@@ -158,11 +157,6 @@ def train(train_with_wisper,
                 "disc_opt_state_dict":  disc_opt.state_dict(),
                 "whisp_opt_state_dict": whisp_opt.state_dict(),
             }, ckpt_path)
-            # print(metrics)
-        
-        # rand_pred, _ = whisp.detectors_prediction(audio_samples)
-        # print(rand_pred)
-        # print(audio_samples[0, :10])
 
 def train_epoch(train_with_wisper, dataloader, dataset,
                 gen,        disc,       whisp,

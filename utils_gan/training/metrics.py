@@ -8,8 +8,6 @@ import numpy as np
 from tqdm.auto import tqdm
 
 def AUC(real, pred):
-    # fpr, tpr, thresholds = sklearn.metrics.roc_curve(real, pred)
-    # eer = brentq(lambda x: 1. - x - interp1d(fpr, tpr)(x), 0., 1.)
     return sklearn.roc_auc_score(real, pred[:,1])
 
 def EER(real, pred, pos_label):

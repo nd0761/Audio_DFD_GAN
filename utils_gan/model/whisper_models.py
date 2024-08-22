@@ -3,9 +3,6 @@ import yaml
 
 import sys 
 import os
-# sys.path.append(os.path.abspath('/tank/local/ndf3868/GODDS/deepfake-whisper/src'))
-# sys.path.append('/tank/local/ndf3868/GODDS/deepfake-whisper/src/models')
-# sys.path.append('/tank/local/ndf3868/GODDS/deepfake-whisper/src')
 sys.path.append('/tank/local/ndf3868/GODDS/deepfake-whisper')
 
 from src.models.models import get_model #/tank/local/ndf3868/GODDS/deepfake-whisper/src/models

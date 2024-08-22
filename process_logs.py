@@ -39,12 +39,10 @@ def display_averages(average_metrics):
     return df
 
 if __name__ == "__main__":
-    logs_directory = '/tank/local/ndf3868/GODDS/GAN/logs/060824-10:07:07'  # Replace with your directory path
+    logs_directory = '/tank/local/ndf3868/GODDS/GAN/logs/060824-10:07:07'
 
-    # Load JSON files and compute averages
     json_data = load_json_files(logs_directory)
     average_metrics = compute_averages(json_data)
 
-    # Display the averages
     average_metrics_df = display_averages(average_metrics)
     average_metrics_df.to_csv(os.path.join(logs_directory, 'average_logs.csv'))
