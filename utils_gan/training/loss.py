@@ -1,10 +1,17 @@
 import torch
+import config
 
 def generator_loss(criterion,
                gen, disc, whisp,
                data, dataset_bonafide_class,
-               label, reverse_label, type=0, training_with_whisp=False): # type = 1 - noised vs non noised  |   0 - fake vs real
-    noised            = gen(data)
+               label, reverse_label, 
+               type=0, training_with_whisp=False): # type = 1 - noised vs non noised  |   0 - fake vs real
+    if config.train_with_wavegan:
+        z = torch.randn(data.shape[0], config.noise_size).to(config.device)
+        noised = gen(data, z)
+    else:
+        noised = gen(data)
+    
     nois_disc_pred  = disc(noised)
     # disc_real_pred    = disc(data)
 
@@ -16,6 +23,8 @@ def generator_loss(criterion,
     elif training_with_whisp:
         nois_whisp_with_disc= whisp.predict_on_data(noised, nois_disc_pred, dataset_bonafide_class)
         nois_whisp_pred     = torch.squeeze(whisp(nois_whisp_with_disc), 1)
+        nois_whisp_pred     = nois_whisp_pred[:, None]
+        # print(nois_whisp_pred.shape)
 
         if type == 1:
             gen_loss = criterion(nois_whisp_pred, torch.ones_like(nois_disc_pred)) # make whisp+disc predict data as not noised(1)
@@ -28,7 +37,11 @@ def discriminator_loss(criterion,
                        gen, disc,
                        data, 
                        label, reverse_label, type=1): # type = 1 - noised vs non noised  |   0 - fake vs real
-    noised            = gen(data)
+    if config.train_with_wavegan:
+        z = torch.randn(data.shape[0], config.noise_size).to(config.device)
+        noised = gen(data, z)
+    else:
+        noised = gen(data)
 
     nois_disc_pred = disc(noised)
     real_disc_pred = disc(data)
@@ -47,7 +60,11 @@ def whisp_loss(criterion,
                gen, disc, whisp,
                data, dataset_bonafide_class,
                label, reverse_label, type=0): # for whisp it is advised to keep type as 0
-    noised = gen(data)
+    if config.train_with_wavegan:
+        z = torch.randn(data.shape[0], config.noise_size).to(config.device)
+        noised = gen(data, z)
+    else:
+        noised = gen(data)
 
     real_disc_pred  = disc(data)
     nois_disc_pred  = disc(noised)

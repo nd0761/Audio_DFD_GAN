@@ -11,12 +11,16 @@ from torch.utils.data import Dataset
 import torchaudio
 import torch
 
-SOX_SILENCE = [
-    # trim all silence that is longer than 0.2s and louder than 1% volume (relative to the file)
-    # from beginning and middle/end
-    ["silence", "1", "0.2", "1%", "-1", "0.2", "1%"],
-]
-FRAMES_NUMBER = 190_000  # <- originally 64_600
+import sys
+sys.path.append(os.path.abspath('/tank/local/ndf3868/GODDS/GAN')) # IMPORTANT
+import config
+
+# SOX_SILENCE = [
+#     # trim all silence that is longer than 0.2s and louder than 1% volume (relative to the file)
+#     # from beginning and middle/end
+#     ["silence", "1", "0.2", "1%", "-1", "0.2", "1%"],
+# ]
+# FRAMES_NUMBER = 190_000  # <- originally 64_600
 
 # bonafide     - label 0 (original)
 # not bonafide - label 1 (generated)
@@ -65,7 +69,7 @@ class ASV_DATASET(Dataset):
 
     def read_audio_file(self, file_name):
         if self.gen_fake: 
-            return torch.zeros(FRAMES_NUMBER), None 
+            return torch.zeros(config.input_size), None 
         path = os.path.join(self.files_loc, file_name+'.flac')
 
         if not os.path.exists(path): return None, None
@@ -140,7 +144,7 @@ class ASV_DATASET(Dataset):
         print("Size of dataset",len(self.targets))
 
     def preproc_audio(self, data):
-        data = apply_pad(data, FRAMES_NUMBER)
+        data = apply_pad(data, config.input_size)
         return data
 
     def undersample_all(self, class_amount):
@@ -204,7 +208,7 @@ def apply_trim(waveform, sample_rate):
     (
         waveform_trimmed,
         sample_rate_trimmed,
-    ) = torchaudio.sox_effects.apply_effects_tensor(waveform, sample_rate, SOX_SILENCE)
+    ) = torchaudio.sox_effects.apply_effects_tensor(waveform, sample_rate, config.SOX_SILENCE)
 
     if waveform_trimmed.size()[1] > 0:
         waveform = waveform_trimmed

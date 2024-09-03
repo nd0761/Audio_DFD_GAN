@@ -69,8 +69,8 @@ class Whispers(nn.Module):
         whisp_pred, _   = self.detectors_prediction(torch.squeeze(data,   1))
 
         if self.bonafide_class != dataset_bonafide_class: whisp_pred = torch.ones_like(whisp_pred) - whisp_pred
-        
-        whisp_with_disc = torch.cat((whisp_pred, disc_pred[:, None]), dim=1)
+        # print(whisp_pred.shape, disc_pred.shape)
+        whisp_with_disc = torch.cat((whisp_pred, disc_pred), dim=1)
         return whisp_with_disc
     
     def forward(self, x):

@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def visualize_separate(preds_noised, preds_nonnoised, save_loc):
+
+    # print('SHAPES', preds_noised.shape, preds_nonnoised.shape)
+    # print()
     # Combine predictions for the third plot
     preds_combined = np.concatenate((preds_noised, preds_nonnoised))
 
