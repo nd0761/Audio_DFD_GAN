@@ -93,13 +93,13 @@ def initialize_gan():
                                audio_dim=config.input_size, num_channels=1, 
                                initial_depth=config.wave_gen_initial_depth, 
                                  final_depth=config.wave_gen_final_depth).to(config.device)
-        gen_opt = torch.optim.Adam(gen.parameters(),    lr=config.lr)
+        gen_opt = torch.optim.Adam(gen.parameters(),    lr=config.lr_gen, betas=(config.beta1, 0.999))
 
-        disc = WaveGANDiscriminator(input_dim=config.input_size, 
+        disc = WaveGANDiscriminator(audio_dim=config.input_size, 
                                     num_channels=1, 
                                     initial_depth=config.wave_disc_initial_depth,
                                     final_depth=config.wave_disc_final_depth).to(config.device)
-        disc_opt = torch.optim.Adam(disc.parameters(),  lr=config.lr)
+        disc_opt = torch.optim.Adam(disc.parameters(),  lr=config.lr_dis, betas=(config.beta1, 0.999))
 
         # #-----DEBUG-----
         # data = torch.randn(16, 1, 190000).to(config.device)
@@ -110,12 +110,12 @@ def initialize_gan():
         # assert 1==0
     else:
         gen = Generator(config.input_size, hidden_dim=config.hidden_dim_gen).to(config.device)
-        gen_opt = torch.optim.Adam(gen.parameters(),    lr=config.lr)
+        gen_opt = torch.optim.Adam(gen.parameters(),    lr=config.lr_gen)
 
         # Discriminator & Optimizer for Discriminator
         disc = Discriminator(config.input_size, 
                             hidden_dim=config.hidden_dim_disc, output_dim=config.output_size).to(config.device)
-        disc_opt = torch.optim.Adam(disc.parameters(),  lr=config.lr)
+        disc_opt = torch.optim.Adam(disc.parameters(),  lr=config.lr_dis)
     return gen, gen_opt, disc, disc_opt
 
 def initialize_dataset():
@@ -172,19 +172,21 @@ def initialize_dataset():
     else:
         print("Unsupported dataset type:", config.dataset_type)
         raise ValueError()
+    print("finished setting up datasets")
     return train_dataset, train_dataloader, test_dataset, test_dataloader 
 
 
 
 def set_up_logs_dir():
     timestamp = f'{get_current_timestamp()}'
-    if config.gen_fake: timestamp = 'DEBUG_'+timestamp
+    if config.gen_fake or config.DEBUG: timestamp = 'DEBUG_'+timestamp
 
     os.makedirs(os.path.join(config.logs_dir, timestamp))
     os.makedirs(os.path.join(config.ckpt_dir, timestamp))
 
     os.makedirs(os.path.join(config.logs_dir, timestamp, 'distr'))
     os.makedirs(os.path.join(config.logs_dir, timestamp, 'metrics'))
+    os.makedirs(os.path.join(config.logs_dir, timestamp, 'audio'))
     return timestamp
 
 def bootstrap_iteration(

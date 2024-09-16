@@ -1,0 +1,18 @@
+{"time":"2024-09-15T19:07:07.599138103-05:00","level":"INFO","msg":"using version","core version":"0.18.0"}
+{"time":"2024-09-15T19:07:07.599156557-05:00","level":"INFO","msg":"created symlink","path":"/tank/local/ndf3868/GODDS/GAN/wandb/run-20240915_190707-m4fxms2i/logs/debug-core.log"}
+{"time":"2024-09-15T19:07:07.599184808-05:00","level":"INFO","msg":"using version","core version":"0.18.0"}
+{"time":"2024-09-15T19:07:07.599189283-05:00","level":"INFO","msg":"created symlink","path":"/tank/local/ndf3868/GODDS/GAN/wandb/run-20240915_190707-m4fxms2i/logs/debug-core.log"}
+{"time":"2024-09-15T19:07:07.600053144-05:00","level":"INFO","msg":"created new stream","id":"m4fxms2i"}
+{"time":"2024-09-15T19:07:07.60007112-05:00","level":"INFO","msg":"stream: started","id":"m4fxms2i"}
+{"time":"2024-09-15T19:07:07.60007542-05:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"m4fxms2i"}}
+{"time":"2024-09-15T19:07:07.600079562-05:00","level":"INFO","msg":"sender: started","stream_id":{"value":"m4fxms2i"}}
+{"time":"2024-09-15T19:07:07.600086589-05:00","level":"INFO","msg":"handler: started","stream_id":{"value":"m4fxms2i"}}
+{"time":"2024-09-15T19:07:07.728717219-05:00","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-09-15T19:07:07.729632011-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-09-15T19:20:19.748716171-05:00","level":"INFO","msg":"stream: closing","id":"m4fxms2i"}
+{"time":"2024-09-15T19:20:19.7487429-05:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-09-15T19:20:19.749161015-05:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-09-15T19:20:20.124932505-05:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"m4fxms2i"}}
+{"time":"2024-09-15T19:20:20.124961285-05:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"m4fxms2i"}}
+{"time":"2024-09-15T19:20:20.124966113-05:00","level":"INFO","msg":"sender: closed","stream_id":{"value":"m4fxms2i"}}
+{"time":"2024-09-15T19:20:20.12503068-05:00","level":"INFO","msg":"stream: closed","id":"m4fxms2i"}

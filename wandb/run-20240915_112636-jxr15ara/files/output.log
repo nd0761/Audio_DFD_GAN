@@ -1,0 +1,85 @@
+
+✧
+description:   0%|                                                   | 0/2917 [00:00<?, ?it/s]
+Traceback (most recent call last):                                   | 0/2917 [00:00<?, ?it/s]
+  File "/tank/local/ndf3868/GODDS/GAN/GODDS_GAN.py", line 231, in <module>
+    bootstrap_iteration(
+  File "/tank/local/ndf3868/GODDS/GAN/GODDS_GAN.py", line 207, in bootstrap_iteration
+    train(config.train_with_wisper,
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/training/train.py", line 51, in train
+    train_epoch(train_with_wisper,
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/training/train.py", line 113, in train_epoch
+    D_R, D_N, W_R, W_N, G_D, G_W = full_cycle(criterion,
+                                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/training/loss.py", line 30, in full_cycle
+    grad_penalty = calculate_gradient_penalty(disc, data, noised_audio, config.device) #Wasserstein GAN
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/training/helpers/W_gan_helper.py", line 10, in calculate_gradient_penalty
+    model_interpolates = model(interpolates)
+                         ^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/model/wavegan.py", line 143, in forward
+    x = self.conv(x)
+        ^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/container.py", line 217, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/conv.py", line 310, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/conv.py", line 306, in _conv_forward
+    return F.conv1d(input, weight, bias, self.stride,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Expected 2D (unbatched) or 3D (batched) input to conv1d, but got input of size: [8, 8, 1, 190000]
+
+Traceback [1;36m(most recent call last)[0m:
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/GODDS_GAN.py:231[0m
+    bootstrap_iteration([0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/GODDS_GAN.py:207[0m in [0;35mbootstrap_iteration[0m
+    train(config.train_with_wisper,[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/training/train.py:51[0m in [0;35mtrain[0m
+    train_epoch(train_with_wisper,[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/training/train.py:113[0m in [0;35mtrain_epoch[0m
+    D_R, D_N, W_R, W_N, G_D, G_W = full_cycle(criterion,[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/training/loss.py:30[0m in [0;35mfull_cycle[0m
+    grad_penalty = calculate_gradient_penalty(disc, data, noised_audio, config.device) #Wasserstein GAN[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/training/helpers/W_gan_helper.py:10[0m in [0;35mcalculate_gradient_penalty[0m
+    model_interpolates = model(interpolates)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1532[0m in [0;35m_wrapped_call_impl[0m
+    return self._call_impl(*args, **kwargs)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1541[0m in [0;35m_call_impl[0m
+    return forward_call(*args, **kwargs)[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/model/wavegan.py:143[0m in [0;35mforward[0m
+    x = self.conv(x)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1532[0m in [0;35m_wrapped_call_impl[0m
+    return self._call_impl(*args, **kwargs)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1541[0m in [0;35m_call_impl[0m
+    return forward_call(*args, **kwargs)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/container.py:217[0m in [0;35mforward[0m
+    input = module(input)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1532[0m in [0;35m_wrapped_call_impl[0m
+    return self._call_impl(*args, **kwargs)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1541[0m in [0;35m_call_impl[0m
+    return forward_call(*args, **kwargs)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/conv.py:310[0m in [0;35mforward[0m
+    return self._conv_forward(input, self.weight, self.bias)[0m
+[1;36m  File [1;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/conv.py:306[1;36m in [1;35m_conv_forward[1;36m
+[1;33m    return F.conv1d(input, weight, bias, self.stride,[1;36m
+[1;31mRuntimeError[0m[1;31m:[0m Expected 2D (unbatched) or 3D (batched) input to conv1d, but got input of size: [8, 8, 1, 190000]

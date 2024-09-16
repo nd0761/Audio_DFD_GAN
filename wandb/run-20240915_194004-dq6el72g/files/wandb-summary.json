@@ -1,0 +1,1 @@
+{"_timestamp":1.7264607096677928e+09,"Discriminator noised":100,"Whisper noised":0.4229751527309418,"_runtime":13505.190065988,"Discriminator real":0,"Whisper full":0.538620725274086,"_step":3649,"Whisper real":0.11564557254314423,"Discriminator full":100,"Generator full":0.21294538974761965,"Generator disc":0,"Generator whis":1.0647269487380981,"_wandb":{"runtime":13756}}

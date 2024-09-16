@@ -1,6 +1,7 @@
 
 import torch
-device = 'cuda:2' if torch.cuda.is_available() else 'cpu'
+wandb_log           = False
+device              = 'cuda:2' if torch.cuda.is_available() else 'cpu'
 
 in_the_wild_dir     = "/tank/local/hgi0312/data/release_in_the_wild"
 in_the_wild_pkl     = "/tank/local/ndf3868/GODDS/GAN/checkpoints/datasets/inthewild_test_ids.pickle"
@@ -15,6 +16,8 @@ train_with_wavegan  = True  # WaveGan whould be processed with additional noise
 
 data_sample_size    = 2500  # 100 - Debugging| 2500 - full training     Number of samples chosen from both training and test datasets
 gen_fake            = False # True - Debug   | False - full training    Toggle used in debugging that creates random audio instead of reading ASV dataset
+
+DEBUG               = False  # flag that would change a number of behaviours (purely cosmetic)
 
 SOX_SILENCE = [
     # trim all silence that is longer than 0.2s and louder than 1% volume (relative to the file)
@@ -40,9 +43,15 @@ output_size         = 1         # Output size, prediction of wether the discrimi
 batch_size          = 8         # Batch size used in training
 
 lr                  = 1e-4*2    # Learning rate used in training
+lr_gen              = lr*2    # Learning rate used in training
+lr_dis              = lr/1.5    # Learning rate used in training
+
+penalty             = 10
+
+beta1               = 0.5
 
 bootstrap_iterations= 1 #5      Number of iterations for bootstrapping 
-n_epochs            = 1 #15    Number of epochs 
+n_epochs            = 5 if DEBUG == False else 1 #15    Number of epochs 
 
 
 dataset_type = 'wild'           # supports ASV2019 'asv' and InTheWild 'wild'

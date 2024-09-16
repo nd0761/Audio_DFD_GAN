@@ -1,0 +1,26 @@
+2024-09-15 19:25:14,369 INFO    MainThread:3920037 [wandb_setup.py:_flush():77] Current SDK version is 0.18.0
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_setup.py:_flush():77] Configure stats pid to 3920037
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_setup.py:_flush():77] Loading settings from /home/ndf3868/.config/wandb/settings
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_setup.py:_flush():77] Loading settings from /tank/local/ndf3868/GODDS/GAN/wandb/settings
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_setup.py:_flush():77] Loading settings from environment variables: {}
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_setup.py:_flush():77] Applying setup settings: {'_disable_service': False}
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_setup.py:_flush():77] Inferring run settings from compute environment: {'program_relpath': 'GODDS_GAN.py', 'program_abspath': '/tank/local/ndf3868/GODDS/GAN/GODDS_GAN.py', 'program': '/tank/local/ndf3868/GODDS/GAN/GODDS_GAN.py'}
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_setup.py:_flush():77] Applying login settings: {}
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_init.py:_log_setup():525] Logging user logs to /tank/local/ndf3868/GODDS/GAN/wandb/run-20240915_192514-c4w93p67/logs/debug.log
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_init.py:_log_setup():526] Logging internal logs to /tank/local/ndf3868/GODDS/GAN/wandb/run-20240915_192514-c4w93p67/logs/debug-internal.log
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_init.py:init():609] calling init triggers
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_init.py:init():616] wandb.init called with sweep_config: {}
+config: {'learning_rate_G': 0.0004, 'learning_rate_D': 0.00013333333333333334, 'architecture': 'WAVE_WES', 'dataset': 'wild', 'epochs': 5, 'penalty_amount': 10}
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_init.py:init():659] starting backend
+2024-09-15 19:25:14,370 INFO    MainThread:3920037 [wandb_init.py:init():663] setting up manager
+2024-09-15 19:25:14,371 INFO    MainThread:3920037 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2024-09-15 19:25:14,371 INFO    MainThread:3920037 [wandb_init.py:init():671] backend started and connected
+2024-09-15 19:25:14,373 INFO    MainThread:3920037 [wandb_init.py:init():766] updated telemetry
+2024-09-15 19:25:14,376 INFO    MainThread:3920037 [wandb_init.py:init():799] communicating run to backend with 90.0 second timeout
+2024-09-15 19:25:14,487 INFO    MainThread:3920037 [wandb_init.py:init():850] starting run threads in backend
+2024-09-15 19:25:14,662 INFO    MainThread:3920037 [wandb_run.py:_console_start():2466] atexit reg
+2024-09-15 19:25:14,662 INFO    MainThread:3920037 [wandb_run.py:_redirect():2312] redirect: wrap_raw
+2024-09-15 19:25:14,662 INFO    MainThread:3920037 [wandb_run.py:_redirect():2377] Wrapping output streams.
+2024-09-15 19:25:14,662 INFO    MainThread:3920037 [wandb_run.py:_redirect():2402] Redirects installed.
+2024-09-15 19:25:14,663 INFO    MainThread:3920037 [wandb_init.py:init():893] run started, returning control to user process
+2024-09-15 19:32:45,854 WARNING MsgRouterThr:3920037 [router.py:message_loop():77] message_loop has been closed

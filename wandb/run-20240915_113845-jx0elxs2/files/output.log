@@ -1,0 +1,148 @@
+
+✧
+Epoch 0 ✧Step 2916✧: 100%|████████████████████████████████| 2917/2917 [43:34<00:00,  1.12it/s]
+Gen L: 1.587 || Dis L: 1.861 || Whi L: 1.159: 100%|███████| 2917/2917 [43:34<00:00,  1.12it/s]
+Evaluation in progress: 100%|███████████████████████████████| 437/437 [03:21<00:00,  2.17it/s]
+
+
+✧
+Epoch 1 ✧Step 2916✧: 100%|████████████████████████████████| 2917/2917 [43:33<00:00,  1.12it/s]
+Gen L: 1.316 || Dis L: 2.312 || Whi L: 1.045: 100%|███████| 2917/2917 [43:33<00:00,  1.12it/s]
+
+
+✧
+Epoch 2 ✧Step 2916✧: 100%|████████████████████████████████| 2917/2917 [43:31<00:00,  1.12it/s]
+Gen L: 0.989 || Dis L: 69.401 || Whi L: 0.930: 100%|██████| 2917/2917 [43:31<00:00,  1.12it/s]
+
+
+✧
+Epoch 3 ✧Step 2916✧: 100%|████████████████████████████████| 2917/2917 [43:30<00:00,  1.12it/s]
+Gen L: 0.801 || Dis L: 100.000 || Whi L: 0.813: 100%|█████| 2917/2917 [43:30<00:00,  1.12it/s]
+Evaluation in progress: 100%|███████████████████████████████| 437/437 [03:21<00:00,  2.17it/s]
+
+
+✧
+Epoch 4 ✧Step 2916✧: 100%|████████████████████████████████| 2917/2917 [43:29<00:00,  1.12it/s]
+Gen L: 0.805 || Dis L: 100.000 || Whi L: 0.768: 100%|█████| 2917/2917 [43:29<00:00,  1.12it/s]
+
+
+✧
+Epoch 5 ✧Step 2916✧: 100%|████████████████████████████████| 2917/2917 [43:33<00:00,  1.12it/s]
+Gen L: 0.813 || Dis L: 100.000 || Whi L: 0.740: 100%|█████| 2917/2917 [43:33<00:00,  1.12it/s]
+
+
+✧
+Epoch 6 ✧Step 2916✧: 100%|████████████████████████████████| 2917/2917 [43:29<00:00,  1.12it/s]
+Gen L: 0.817 || Dis L: 100.000 || Whi L: 0.724: 100%|█████| 2917/2917 [43:29<00:00,  1.12it/s]
+Evaluation in progress: 100%|███████████████████████████████| 437/437 [03:20<00:00,  2.17it/s]
+
+
+✧
+Epoch 7 ✧Step 2916✧: 100%|████████████████████████████████| 2917/2917 [43:29<00:00,  1.12it/s]
+Gen L: 0.812 || Dis L: 100.000 || Whi L: 0.713: 100%|█████| 2917/2917 [43:29<00:00,  1.12it/s]
+
+
+✧
+Epoch 8 ✧Step 2916✧: 100%|████████████████████████████████| 2917/2917 [43:28<00:00,  1.12it/s]
+Gen L: 0.814 || Dis L: 100.000 || Whi L: 0.705: 100%|█████| 2917/2917 [43:28<00:00,  1.12it/s]
+
+
+✧
+Epoch 9 ✧Step 2188✧:  75%|███████████████████████▎       | 2189/2917 [32:39<10:51,  1.12it/s] 
+Traceback (most recent call last):Whi L: 0.700:  75%|███ | 2189/2917 [32:38<11:02,  1.10it/s] 
+  File "/tank/local/ndf3868/GODDS/GAN/GODDS_GAN.py", line 231, in <module>
+    bootstrap_iteration(
+  File "/tank/local/ndf3868/GODDS/GAN/GODDS_GAN.py", line 207, in bootstrap_iteration
+    train(config.train_with_wisper,
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/training/train.py", line 51, in train
+    train_epoch(train_with_wisper,
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/training/train.py", line 113, in train_epoch
+    D_R, D_N, W_R, W_N, G_D, G_W = full_cycle(criterion,
+                                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/training/loss.py", line 68, in full_cycle
+    nois_whisp_with_disc = whisp.predict_on_data(noised_audio, nois_disc_pred, dataset_bonafide_class)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/model/whisper_models.py", line 69, in predict_on_data
+    whisp_pred, _   = self.detectors_prediction(torch.squeeze(data,   1))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/model/whisper_models.py", line 62, in detectors_prediction
+    batch_pred = [run_pred(model, batch) for model in self.whisper_models]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/model/whisper_models.py", line 62, in <listcomp>
+    batch_pred = [run_pred(model, batch) for model in self.whisper_models]
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tank/local/ndf3868/GODDS/GAN/utils_gan/model/whisper_models.py", line 58, in run_pred
+    return model(batch).squeeze(1)
+           ^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tank/local/ndf3868/GODDS/deepfake-whisper/src/models/rawnet3.py", line 94, in forward
+    x1 = self.layer1(x)
+         ^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tank/local/ndf3868/GODDS/deepfake-whisper/src/models/rawnet3.py", line 257, in forward
+    sp = self.convs[i](sp)
+         ^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1532, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1541, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/conv.py", line 310, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ndf3868/anaconda3/lib/python3.11/site-packages/torch/nn/modules/conv.py", line 306, in _conv_forward
+    return F.conv1d(input, weight, bias, self.stride,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+Traceback [1;36m(most recent call last)[0m:
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/GODDS_GAN.py:231[0m
+    bootstrap_iteration([0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/GODDS_GAN.py:207[0m in [0;35mbootstrap_iteration[0m
+    train(config.train_with_wisper,[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/training/train.py:51[0m in [0;35mtrain[0m
+    train_epoch(train_with_wisper,[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/training/train.py:113[0m in [0;35mtrain_epoch[0m
+    D_R, D_N, W_R, W_N, G_D, G_W = full_cycle(criterion,[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/training/loss.py:68[0m in [0;35mfull_cycle[0m
+    nois_whisp_with_disc = whisp.predict_on_data(noised_audio, nois_disc_pred, dataset_bonafide_class)[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/model/whisper_models.py:69[0m in [0;35mpredict_on_data[0m
+    whisp_pred, _   = self.detectors_prediction(torch.squeeze(data,   1))[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/model/whisper_models.py:62[0m in [0;35mdetectors_prediction[0m
+    batch_pred = [run_pred(model, batch) for model in self.whisper_models][0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/model/whisper_models.py:62[0m in [0;35m<listcomp>[0m
+    batch_pred = [run_pred(model, batch) for model in self.whisper_models][0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/GAN/utils_gan/model/whisper_models.py:58[0m in [0;35mrun_pred[0m
+    return model(batch).squeeze(1)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1532[0m in [0;35m_wrapped_call_impl[0m
+    return self._call_impl(*args, **kwargs)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1541[0m in [0;35m_call_impl[0m
+    return forward_call(*args, **kwargs)[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/deepfake-whisper/src/models/rawnet3.py:94[0m in [0;35mforward[0m
+    x1 = self.layer1(x)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1532[0m in [0;35m_wrapped_call_impl[0m
+    return self._call_impl(*args, **kwargs)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1541[0m in [0;35m_call_impl[0m
+    return forward_call(*args, **kwargs)[0m
+[0m  File [0;32m/tank/local/ndf3868/GODDS/deepfake-whisper/src/models/rawnet3.py:257[0m in [0;35mforward[0m
+    sp = self.convs[i](sp)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1532[0m in [0;35m_wrapped_call_impl[0m
+    return self._call_impl(*args, **kwargs)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/module.py:1541[0m in [0;35m_call_impl[0m
+    return forward_call(*args, **kwargs)[0m
+[0m  File [0;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/conv.py:310[0m in [0;35mforward[0m
+    return self._conv_forward(input, self.weight, self.bias)[0m
+[1;36m  File [1;32m~/anaconda3/lib/python3.11/site-packages/torch/nn/modules/conv.py:306[1;36m in [1;35m_conv_forward[1;36m
+[1;33m    return F.conv1d(input, weight, bias, self.stride,[1;36m
+[1;31mKeyboardInterrupt[0m

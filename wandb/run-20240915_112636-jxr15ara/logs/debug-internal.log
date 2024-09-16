@@ -1,0 +1,18 @@
+{"time":"2024-09-15T11:26:36.410308486-05:00","level":"INFO","msg":"using version","core version":"0.18.0"}
+{"time":"2024-09-15T11:26:36.410325654-05:00","level":"INFO","msg":"created symlink","path":"/tank/local/ndf3868/GODDS/GAN/wandb/run-20240915_112636-jxr15ara/logs/debug-core.log"}
+{"time":"2024-09-15T11:26:36.410353995-05:00","level":"INFO","msg":"using version","core version":"0.18.0"}
+{"time":"2024-09-15T11:26:36.410358477-05:00","level":"INFO","msg":"created symlink","path":"/tank/local/ndf3868/GODDS/GAN/wandb/run-20240915_112636-jxr15ara/logs/debug-core.log"}
+{"time":"2024-09-15T11:26:36.411183484-05:00","level":"INFO","msg":"created new stream","id":"jxr15ara"}
+{"time":"2024-09-15T11:26:36.411201862-05:00","level":"INFO","msg":"stream: started","id":"jxr15ara"}
+{"time":"2024-09-15T11:26:36.41120568-05:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"jxr15ara"}}
+{"time":"2024-09-15T11:26:36.411221399-05:00","level":"INFO","msg":"handler: started","stream_id":{"value":"jxr15ara"}}
+{"time":"2024-09-15T11:26:36.411210555-05:00","level":"INFO","msg":"sender: started","stream_id":{"value":"jxr15ara"}}
+{"time":"2024-09-15T11:26:37.455726588-05:00","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-09-15T11:26:37.456714137-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-09-15T11:26:37.908084261-05:00","level":"INFO","msg":"stream: closing","id":"jxr15ara"}
+{"time":"2024-09-15T11:26:37.908127468-05:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-09-15T11:26:37.908290381-05:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-09-15T11:26:38.662748752-05:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"jxr15ara"}}
+{"time":"2024-09-15T11:26:38.662827758-05:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"jxr15ara"}}
+{"time":"2024-09-15T11:26:38.66283716-05:00","level":"INFO","msg":"sender: closed","stream_id":{"value":"jxr15ara"}}
+{"time":"2024-09-15T11:26:38.662958316-05:00","level":"INFO","msg":"stream: closed","id":"jxr15ara"}

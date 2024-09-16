@@ -1,0 +1,18 @@
+{"time":"2024-09-15T11:32:02.27687967-05:00","level":"INFO","msg":"using version","core version":"0.18.0"}
+{"time":"2024-09-15T11:32:02.276896425-05:00","level":"INFO","msg":"created symlink","path":"/tank/local/ndf3868/GODDS/GAN/wandb/run-20240915_113202-rfm6tu1k/logs/debug-core.log"}
+{"time":"2024-09-15T11:32:02.276925012-05:00","level":"INFO","msg":"using version","core version":"0.18.0"}
+{"time":"2024-09-15T11:32:02.276930027-05:00","level":"INFO","msg":"created symlink","path":"/tank/local/ndf3868/GODDS/GAN/wandb/run-20240915_113202-rfm6tu1k/logs/debug-core.log"}
+{"time":"2024-09-15T11:32:02.277750964-05:00","level":"INFO","msg":"created new stream","id":"rfm6tu1k"}
+{"time":"2024-09-15T11:32:02.277767873-05:00","level":"INFO","msg":"stream: started","id":"rfm6tu1k"}
+{"time":"2024-09-15T11:32:02.277772301-05:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"rfm6tu1k"}}
+{"time":"2024-09-15T11:32:02.277778865-05:00","level":"INFO","msg":"handler: started","stream_id":{"value":"rfm6tu1k"}}
+{"time":"2024-09-15T11:32:02.277784781-05:00","level":"INFO","msg":"sender: started","stream_id":{"value":"rfm6tu1k"}}
+{"time":"2024-09-15T11:32:02.430136245-05:00","level":"INFO","msg":"wandb-core","!BADKEY":null}
+{"time":"2024-09-15T11:32:02.430928861-05:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-09-15T11:32:04.078013066-05:00","level":"INFO","msg":"stream: closing","id":"rfm6tu1k"}
+{"time":"2024-09-15T11:32:04.078107329-05:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-09-15T11:32:04.078413338-05:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-09-15T11:32:04.415594753-05:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"rfm6tu1k"}}
+{"time":"2024-09-15T11:32:04.415653121-05:00","level":"INFO","msg":"sender: closed","stream_id":{"value":"rfm6tu1k"}}
+{"time":"2024-09-15T11:32:04.415644795-05:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"rfm6tu1k"}}
+{"time":"2024-09-15T11:32:04.415723999-05:00","level":"INFO","msg":"stream: closed","id":"rfm6tu1k"}
