@@ -1,7 +1,12 @@
 checkpoints/**/*.pt
 whisper_config/**/*.pth
+
 logs/**/*.png
 logs/**/*.json
+logs/**/*.wav
 
-GODDS_GAN.ipynb
+wandb/
+ray_results/
+
+DEPR_GODDS_GAN.ipynb
 process_logs.py

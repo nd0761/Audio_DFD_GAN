@@ -3,23 +3,26 @@ import torch
 
 import numpy as np
 
-import json
+# import json
 import sys 
 import os
 sys.path.append(os.path.abspath('/tank/local/ndf3868/GODDS/GAN/utils_gan')) # IMPORTANT
 
 from training.loss import full_cycle
 from training.metrics import set_up_metrics_list, test_metrics
-from training.distribution_visualizer import visualize_separate
+# from training.distribution_visualizer import visualize_separate
+from training.log_data import log_metrics, save_checkpoint, log_audio, log_spectrogram
 
 import wandb
-# from loss import generator_loss, discriminator_loss, whisp_loss
-# from metrics import set_up_metrics_list, test_metrics
-# from distribution_visualizer import visualize_separate
-
-# from utils_gan import generator_loss, discriminator_loss, whisp_loss, test_data, set_up_metrics_list, visualize_separate
 
 import config
+
+# import tempfile
+# from pathlib import Path
+
+# from ray.train import Checkpoint, get_checkpoint
+from ray import train as r_train
+# import ray.cloudpickle as pickle
 
 TRAINING_TYPE = 1 # 1 - noised vs non noised| 0 - generator vs bonafide
 
@@ -31,7 +34,9 @@ def train(train_with_wisper,
             criterion,
             n_epochs, 
             logs_dir, ckpt_dir):
-    
+    bonafide_class = train_dataset.bonafide_class
+    # print(config.batch_size)
+    # return None
     if config.wandb_log: 
         wandb_proj = wandb.init(
         # set the wandb project where this run will be logged
@@ -44,6 +49,9 @@ def train(train_with_wisper,
             "architecture": "WAVE_WES",
             "dataset": config.dataset_type,
             "epochs": config.n_epochs,
+            "g_trainin_step": config.g_trainin_step,
+            "w_trainin_step": config.w_trainin_step,
+            "n_epochs_no_whisp": config.n_epochs_no_whisp,
             "penalty_amount": config.penalty,
         }
     )
@@ -51,35 +59,68 @@ def train(train_with_wisper,
     
     for epoch in range(n_epochs): #tqdm(range(n_epochs), desc='Training', leave):
         print('\n✧\n')
-        train_epoch(train_with_wisper, 
-            train_dataloader, train_dataset,
+        mdl, mgl, mwl = train_epoch(train_with_wisper, 
+            train_dataloader, bonafide_class,
             gen,        disc,       whisp,
             gen_opt,    disc_opt,   whisp_opt, 
             criterion,
-            epoch, wandb_proj)
+            epoch, wandb_proj,
+            test_dataloader, logs_dir)
         
         if epoch % 3 == 0 or epoch == n_epochs-1:
             predictions = produce_prediction_dict(train_with_wisper,
-                                                test_dataloader, train_dataset.bonafide_class,
+                                                test_dataloader, bonafide_class,
                                                 gen, disc, whisp)
-            metrics      = test_metrics(set_up_metrics_list(train_dataset.bonafide_class), predictions)
+            metrics      = test_metrics(set_up_metrics_list(bonafide_class), predictions)
 
-            log_metrics(predictions, metrics, 
-                logs_dir, ckpt_dir, 
-                epoch,
-                gen, disc, whisp,
-                gen_opt, disc_opt, whisp_opt)
-        log_audio(gen, test_dataloader, epoch, logs_dir)
-    if wandb_proj is not None:
-        wandb_proj.finish()
-
+            if config.save_logs: log_metrics(predictions, metrics, 
+                logs_dir, epoch)
             
+        ckpt_path = os.path.join(ckpt_dir, f'last_ckpt.pt')
+        _ = save_checkpoint(ckpt_dir, epoch,
+            gen, disc, whisp,
+            gen_opt, disc_opt, whisp_opt, ckpt_path)
+        if epoch % 10 == 0 or epoch == n_epochs-1:
+            ckpt_path = os.path.join(ckpt_dir, f'epoch{epoch}.pt')
+            _ = save_checkpoint(ckpt_dir, epoch,
+                gen, disc, whisp,
+                gen_opt, disc_opt, whisp_opt, ckpt_path)
+        
+        if config.ray_tune:
+            r_train.report(
+                {"D_full": mdl, "G_full": mgl, "W_full":mwl, "combined": mdl * 0.4 + mgl * 0.6},
+            )
+            # --- OUT OF MEMORY WHEN SAVING CKPT ---
+            # with tempfile.TemporaryDirectory() as checkpoint_dir:
+            #     data_path = Path(checkpoint_dir) / "data.pkl"
+            #     with open(data_path, "wb") as fp:
+            #         pickle.dump(ckpt_dict, fp)
 
-def train_epoch(train_with_wisper, dataloader, dataset,
+            #     checkpoint = Checkpoint.from_directory(checkpoint_dir)
+            #     train.report(
+            #         {"D_full": mdl, "G_full": mgl, "W_full":mwl, "combined": mdl * 0.4 + mgl * 0.6},
+            #         checkpoint=checkpoint,
+            #     )
+
+        if config.save_logs: 
+            orig_wav, nois_wav = log_audio(gen, test_dataloader, f'epoch_{epoch}', logs_dir)
+            audio_files = [
+                orig_wav,
+                nois_wav
+            ]
+            spec_files = [
+                os.path.join(logs_dir, 'spectrograms', f'epoch_{epoch}_orig.png'),
+                os.path.join(logs_dir, 'spectrograms', f'epoch_{epoch}_nois.png')]
+            for a_f, s_f in zip(audio_files, spec_files):
+                log_spectrogram(a_f, s_f)
+    if wandb_proj is not None: wandb_proj.finish()
+
+def train_epoch(train_with_wisper, dataloader, bonafide_class,
                 gen,        disc,       whisp,
                 gen_opt,    disc_opt,   whisp_opt, 
                 criterion,
-                epoch, wandb_proj):
+                epoch, wandb_proj, 
+                test_dataloader, logs_dir):
     
     # # Sample
     # original_audio = torch.randn(16, 1, 190_000)  # Batch size of 16, input audio
@@ -101,9 +142,11 @@ def train_epoch(train_with_wisper, dataloader, dataset,
     mean_generator_loss     = []
     mean_whisp_loss         = []
 
-    pbar = tqdm(dataloader, desc='description', dynamic_ncols=True, position=0)
-    pbar_loss = tqdm(range(len(dataloader)), dynamic_ncols=True, position=1)
-    t = 10
+    if config.save_logs: pbar = tqdm(dataloader, desc='description', dynamic_ncols=True, position=0)
+    else: pbar = dataloader
+    if config.save_logs: pbar_loss = tqdm(range(len(dataloader)), dynamic_ncols=True, position=1)
+    else: pbar_loss = None
+    t = 25
 
     for (data, sr, label, gen_type) in pbar:
         data = data.float()
@@ -112,18 +155,27 @@ def train_epoch(train_with_wisper, dataloader, dataset,
         data           = data.to(config.device)
         label          = label.float().to(config.device)
         reverse_label  = torch.sub(torch.ones_like(label),label) # 1 initially REAL now 1 FAKE
+
         if config.train_with_wavegan: z = torch.randn(data.shape[0], config.noise_size).to(config.device)
         else: z = None
 
+        t_cur = cur_step
+        if cur_step != 0 and epoch <= config.n_epochs_no_whisp: t_cur = None
+
         D_R, D_N, W_R, W_N, G_D, G_W = full_cycle(criterion,
-               gen, disc, whisp,
-               gen_opt, disc_opt, whisp_opt,
-               z, data, label, reverse_label,
-               dataset.bonafide_class)
+            gen, disc, whisp,
+            gen_opt, disc_opt, whisp_opt,
+            z, data, label, reverse_label,
+            bonafide_class, cur_step=t_cur, cur_step_g=cur_step)
 
         mean_discriminator_loss.append((D_R + D_N))
-        mean_generator_loss.append((G_D * 0.8 + G_W * 0.2))
-        mean_whisp_loss.append((W_N + W_R))
+        
+        if t_cur is not None and t_cur % config.w_trainin_step == 0:
+            mean_generator_loss.append((G_D * 0.8 + G_W * 0.2))
+            mean_whisp_loss.append((W_N + W_R))
+        else:
+            if cur_step % config.g_trainin_step == 0:
+                mean_generator_loss.append(G_D)
 
         if cur_step % display_step == 0 or cur_step == len(dataloader) -1:
             mdl = sum(mean_discriminator_loss)  / len(mean_discriminator_loss)
@@ -135,27 +187,51 @@ def train_epoch(train_with_wisper, dataloader, dataset,
             pbar_desc_loss = f"Gen L: {mgl:.3f} || "+ \
                     f"Dis L: {mdl:.3f} || "+ \
                     f"Whi L: {mwl:.3f}"
-            pbar.set_description(pbar_desc)
-            pbar_loss.set_description(pbar_desc_loss)
+            if config.save_logs: pbar.set_description(pbar_desc)
+            if config.save_logs: pbar_loss.set_description(pbar_desc_loss)
             
             if wandb_proj is not None: 
-                wandb_proj.log({
-                "Discriminator full": D_R + D_N, 
-                "Discriminator real": D_R,  
-                "Discriminator noised": D_N, 
-                "Whisper full": W_R + W_N, 
-                "Whisper real": W_R,  
-                "Whisper noised": W_N, 
-                "Generator full": G_D * 0.8 + G_W * 0.2, 
-                "Generator disc": G_D,  
-                "Generator whis": G_W,
-                })
+                if t_cur is not None and t_cur % config.w_trainin_step == 0:
+                    wandb_proj.log({
+                    "Discriminator full": D_R + D_N, 
+                    "Discriminator real": D_R,  
+                    "Discriminator noised": D_N, 
+                    "Whisper full": W_R + W_N, 
+                    "Whisper real": W_R,  
+                    "Whisper noised": W_N, 
+                    "Generator full": G_D * 0.8 + G_W * 0.2, 
+                    "Generator disc": G_D,  
+                    "Generator whis": G_W,
+                    })
+                else:
+                    wandb_proj.log({
+                    "Discriminator full": D_R + D_N, 
+                    "Discriminator real": D_R,  
+                    "Discriminator noised": D_N,
+                    "Generator full": G_D, 
+                    "Generator disc": G_D,
+                    })
 
-        pbar_loss.update(1)
+        if config.save_logs and cur_step%500 == 0: 
+            orig_wav, nois_wav = log_audio(gen, test_dataloader, cur_step, logs_dir)
+            audio_files = [
+                orig_wav,
+                nois_wav
+            ]
+            spec_files = [
+                os.path.join(logs_dir, 'spectrograms', f'orig.png'),
+                os.path.join(logs_dir, 'spectrograms', f'{cur_step}_nois.png')]
+            for a_f, s_f in zip(audio_files, spec_files):
+                log_spectrogram(a_f, s_f)
+        
+        if config.save_logs: pbar_loss.update(1)
         cur_step += 1
         if config.DEBUG and t < 0: break
         t -= 1
-    pbar_loss.close()
+    if config.save_logs: pbar_loss.close()
+    return sum(mean_discriminator_loss)  / len(mean_discriminator_loss), \
+        sum(mean_generator_loss)      / len(mean_generator_loss), \
+        sum(mean_whisp_loss)          / len(mean_whisp_loss)
 
 def produce_prediction_dict(train_with_wisper,
               dataloader, dataset_bonafide_class,
@@ -168,7 +244,8 @@ def produce_prediction_dict(train_with_wisper,
     limit_batches = int(total_batches * 0.15)
 
 
-    pbar = tqdm(dataloader, desc='Evaluation in progress', dynamic_ncols=True, total=limit_batches)
+    if config.save_logs: pbar = tqdm(dataloader, desc='Evaluation in progress', dynamic_ncols=True, total=limit_batches)
+    else: pbar = dataloader
 
     predictor_type  = ['disc', 'whisp']
     prediction_type = ['label', 'pred']
@@ -249,49 +326,3 @@ def produce_prediction_dict(train_with_wisper,
     # print(predictions)
     # assert 1==0
     return predictions
-
-def log_metrics(predictions, metrics, 
-                logs_dir, ckpt_dir, 
-                epoch,
-                gen, disc, whisp,
-                gen_opt, disc_opt, whisp_opt):
-    visualize_separate(predictions['disc']['pred noised'],  predictions['disc']['pred non-noised'],  
-                               os.path.join(logs_dir, 'distr', f'epoch_{epoch}_density_distribution_DISC.png'))
-    visualize_separate(predictions['whisp']['pred noised'], predictions['whisp']['pred non-noised'], 
-                        os.path.join(logs_dir, 'distr', f'epoch_{epoch}_density_distribution_WHISP.png'))
-
-    with open(os.path.join(logs_dir, 'metrics', f"sample_iteration_{epoch}.json"), "w") as outfile: 
-        json.dump(metrics, outfile, indent=2)
-    
-    ckpt_path = os.path.join(ckpt_dir, f'epoch{epoch}.pt')
-    torch.save({
-        "epoch":epoch,
-
-        "gen_state_dict":   gen.state_dict(),
-        "disc_state_dict":  disc.state_dict(),
-        "whisp_state_dict": whisp.state_dict(),
-
-        "gen_opt_state_dict":   gen_opt.state_dict(),
-        "disc_opt_state_dict":  disc_opt.state_dict(),
-        "whisp_opt_state_dict": whisp_opt.state_dict(),
-    }, ckpt_path)
-
-def log_audio(gen, dataloader, epoch, logs_dir):
-    from scipy.io.wavfile import write
-    import soundfile as sf
-    gen.eval()
-
-    data, sr, label, gen_type = next(iter(dataloader))
-
-    sr = sr[0]
-    data = data[0][None, :].to(config.device)
-    # print(data[0, :30, :30])
-
-    z = torch.randn(1, config.noise_size).to(config.device)
-    noised = gen(data, z).cpu().detach().numpy()
-    data = data.cpu().detach().numpy()
-
-    # print(data.squeeze(0).squeeze(0).shape, noised.squeeze(0).shape)
-
-    sf.write(os.path.join(logs_dir, 'audio', f'{epoch}_orig.wav'), data.squeeze(0).squeeze(0), sr)
-    sf.write(os.path.join(logs_dir, 'audio', f'{epoch}_nois.wav'), noised.squeeze(0).squeeze(0), sr)

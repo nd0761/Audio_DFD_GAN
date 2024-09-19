@@ -44,7 +44,7 @@ class Whispers(nn.Module):
             config=model_config["model"]["parameters"],
             device=self.device,
         )
-        model.load_state_dict(torch.load(model_config["checkpoint"]["path"]))
+        model.load_state_dict(torch.load(model_config["checkpoint"]["path"], map_location=torch.device('cpu')))
 
         model = model.to(self.device)
         model = self.freeze_model(model)

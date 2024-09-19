@@ -18,9 +18,11 @@ sys.path.append(os.path.abspath('/tank/local/ndf3868/GODDS/GAN')) # IMPORTANT
 import config
 
 class ITW_DATSET(Dataset):
-    def __init__(self, data_type):          # data_type either train or test
+    def __init__(self, data_type, audio_len=131072):          # data_type either train or test
         self.bonafide_class = config.bonafide_class
         self.data_type = data_type
+
+        self.audio_len = audio_len
 
         self.audio_dir      = config.in_the_wild_dir
         self.test_ids_pkl   = config.in_the_wild_pkl
@@ -67,20 +69,22 @@ class ITW_DATSET(Dataset):
 
         for audio_file in tqdm(audio_filenames, desc='Processing InTheWild data'):
             audio, sr = process_file(os.path.join(self.audio_dir, audio_file)) 
-            # audio data shape is [190_000] we make it into [1, 190_000]
+            
             is_original = (self.bonafide_class if 
                             (self.meta_csv[self.meta_csv['file'] == audio_file]['label'].values[0] == 'bona-fide') 
                             else 1-self.bonafide_class)
             speaker = self.meta_csv[self.meta_csv['file'] == audio_file]['speaker'].values[0]
 
-            data_new = {
-                'file_name': [audio_file],
-                'audio': [audio[None, :]],
-                'is_original': [is_original],
-                'generator_type': [speaker],
-                'sample_rate': [sr]
-            }
-            for t in data_new: data[t].extend(data_new[t])
+            new_audios = cut_random_part(audio, 4, self.audio_len)
+            for new_audio in new_audios:
+                data_new = {
+                    'file_name': [audio_file],
+                    'audio': [new_audio[None, :]],
+                    'is_original': [is_original],
+                    'generator_type': [speaker],
+                    'sample_rate': [sr]
+                }
+                for t in data_new: data[t].extend(data_new[t])
             if len(data['file_name']) % 2000 == 0: data = update_target(data)
         
         if len(data['file_name']) > 0:      update_target(data)
@@ -100,6 +104,21 @@ class ITW_DATSET(Dataset):
 def preproc_audio(data):
     data = apply_pad(data, config.input_size)
     return data
+
+def cut_random_part(data, new_cnt, audio_len):
+    data_len = data.shape[0]
+    if audio_len > data_len:
+        raise ValueError("audio_len is greater than the length of the original audio data")
+    
+    new_audios = []
+    
+    for _ in range(new_cnt):
+        start_idx = np.random.randint(0, data_len - audio_len)
+        new_audio = data[start_idx:start_idx + audio_len]
+        new_audios.append(new_audio)
+    
+    return new_audios
+
 
 def apply_trim(waveform, sample_rate):
     (

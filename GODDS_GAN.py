@@ -89,33 +89,25 @@ def initialize_whisper():
 
 def initialize_gan():
     if config.train_with_wavegan:
-        gen = WaveGANGenerator(input_dim=100, 
+        gen = WaveGANGenerator(noise_dim=config.noise_size, 
                                audio_dim=config.input_size, num_channels=1, 
                                initial_depth=config.wave_gen_initial_depth, 
                                  final_depth=config.wave_gen_final_depth).to(config.device)
-        gen_opt = torch.optim.Adam(gen.parameters(),    lr=config.lr_gen, betas=(config.beta1, 0.999))
+        gen_opt = torch.optim.Adam(gen.parameters(),    lr=config.lr_gen, betas=(config.beta1, config.beta2))
 
         disc = WaveGANDiscriminator(audio_dim=config.input_size, 
                                     num_channels=1, 
                                     initial_depth=config.wave_disc_initial_depth,
                                     final_depth=config.wave_disc_final_depth).to(config.device)
-        disc_opt = torch.optim.Adam(disc.parameters(),  lr=config.lr_dis, betas=(config.beta1, 0.999))
-
-        # #-----DEBUG-----
-        # data = torch.randn(16, 1, 190000).to(config.device)
-        # z = torch.randn(data.shape[0], config.noise_size).to(config.device)
-        # noised = gen(data, z)
-        # print(noised.shape)
-        # print(data.shape)
-        # assert 1==0
+        disc_opt = torch.optim.Adam(disc.parameters(),  lr=config.lr_dis, betas=(config.beta1, config.beta2))
     else:
         gen = Generator(config.input_size, hidden_dim=config.hidden_dim_gen).to(config.device)
-        gen_opt = torch.optim.Adam(gen.parameters(),    lr=config.lr_gen)
+        gen_opt = torch.optim.Adam(gen.parameters(),    lr=config.lr_gen, betas=(config.beta1, config.beta2))
 
         # Discriminator & Optimizer for Discriminator
         disc = Discriminator(config.input_size, 
                             hidden_dim=config.hidden_dim_disc, output_dim=config.output_size).to(config.device)
-        disc_opt = torch.optim.Adam(disc.parameters(),  lr=config.lr_dis)
+        disc_opt = torch.optim.Adam(disc.parameters(),  lr=config.lr_dis, betas=(config.beta1, config.beta2))
     return gen, gen_opt, disc, disc_opt
 
 def initialize_dataset():
@@ -147,6 +139,7 @@ def initialize_dataset():
         sampler = SubsetRandomSampler(get_balanced_indeces(dataset=test_dataset, 
                                                            n_samples_per_class=config.data_sample_size, shuffle=False))
         test_dataloader  = DataLoader(test_dataset,  batch_size=config.batch_size, shuffle=False, sampler=sampler)
+        # test_dataset = None
         train_dataloader = None # it is sampled in bootstrap iterations ecery time to make training unique every time
     elif config.dataset_type == 'wild':
         if os.path.exists(tr_da_path):
@@ -169,6 +162,7 @@ def initialize_dataset():
 
         train_dataloader = DataLoader(train_dataset,  batch_size=config.batch_size, shuffle=True)
         test_dataloader  = DataLoader(test_dataset,  batch_size=config.batch_size, shuffle=False)
+        # test_dataset = None
     else:
         print("Unsupported dataset type:", config.dataset_type)
         raise ValueError()
@@ -187,6 +181,7 @@ def set_up_logs_dir():
     os.makedirs(os.path.join(config.logs_dir, timestamp, 'distr'))
     os.makedirs(os.path.join(config.logs_dir, timestamp, 'metrics'))
     os.makedirs(os.path.join(config.logs_dir, timestamp, 'audio'))
+    os.makedirs(os.path.join(config.logs_dir, timestamp, 'spectrograms'))
     return timestamp
 
 def bootstrap_iteration(
@@ -196,13 +191,14 @@ def bootstrap_iteration(
         train_dataloader, test_dataloader, 
         train_dataset, test_dataset):
     
-    print("sampling TRAIN dataset for bootstrap iteration", _)
+    print("sampling TRAIN dataset for bootstrap iteration")
     if config.dataset_type == 'asv':
         sampler = SubsetRandomSampler(get_balanced_indeces(dataset=train_dataset, 
                                                         n_samples_per_class=config.data_sample_size, shuffle=True))
         train_dataloader = DataLoader(train_dataset, batch_size=config.batch_size, sampler=sampler)
-
-    timestamp = set_up_logs_dir()
+    
+    timestamp = 'none'
+    if config.save_logs: timestamp = set_up_logs_dir()
 
     train(config.train_with_wisper, 
         train_dataloader, test_dataloader, 
@@ -215,8 +211,7 @@ def bootstrap_iteration(
         ckpt_dir=os.path.join(config.ckpt_dir, timestamp))
 
 
-
-if __name__ == "__main__":
+def initialize_all():
     set_seed(3407)
     
     gen, gen_opt, disc, disc_opt = initialize_gan()  
@@ -227,6 +222,43 @@ if __name__ == "__main__":
     set_seed(3407)
     train_dataset, train_dataloader, test_dataset, test_dataloader  = initialize_dataset()
 
+    return criterion, \
+        gen, disc, whisp, \
+        gen_opt, disc_opt, whisp_opt, \
+            train_dataset, train_dataloader, \
+                test_dataset, test_dataloader
+
+def run_experiment(config_dict):
+    os.environ["RAY_memory_usage_threshold"] = '0.98'
+    config.wandb_log = False
+    config.ray_tune  = True
+    config.save_logs = False
+
+    config.lr_gen  = config_dict['lr_gen']
+    config.lr_dis  = config_dict['lr_dis']
+    config.penalty = config_dict['penalty']
+    config.beta1   = config_dict['beta1']
+    config.beta2   = config_dict['beta2']
+    config.noise_size = config_dict['noise_size']
+
+    criterion, gen, disc, whisp, gen_opt, disc_opt, whisp_opt, \
+        train_dataset, train_dataloader, test_dataset, test_dataloader = initialize_all()
+
+    bootstrap_iteration(
+        gen,      disc,     whisp,
+        gen_opt,  disc_opt, whisp_opt,
+        criterion,
+        train_dataloader, test_dataloader, 
+        train_dataset, test_dataset)
+
+
+
+if __name__ == "__main__":
+    #---- Run normal training without tuning---
+
+    criterion, gen, disc, whisp, gen_opt, disc_opt, whisp_opt, \
+        train_dataset, train_dataloader, test_dataset, test_dataloader = initialize_all()
+
     for _ in range(config.bootstrap_iterations):
         bootstrap_iteration(
         gen,      disc,     whisp,
@@ -234,14 +266,3 @@ if __name__ == "__main__":
         criterion,
         train_dataloader, test_dataloader, 
         train_dataset, test_dataset)
-
-# ----Debug whisper----
-# audio_samples = torch.rand(size=(8, config.input_size), dtype=torch.float32) - 0.5
-# targets = torch.randint(low=0, high=2, size=(8, 1))
-
-# rand_pred = whisp.detectors_prediction(audio_samples.to(config.device))
-# print(rand_pred)
-# rand_pred = whisp.detectors_prediction(audio_samples.to(config.device))
-# print(rand_pred)
-# rand_pred = whisp.detectors_prediction(audio_samples.to(config.device))
-# print(rand_pred)

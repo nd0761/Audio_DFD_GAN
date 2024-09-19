@@ -1,7 +1,16 @@
 
 import torch
-wandb_log           = False
-device              = 'cuda:2' if torch.cuda.is_available() else 'cpu'
+
+# "lr_gen": 0.009685600748667533, "lr_dis": 0.00013827007668818942, "penalty": 9, "beta1": 0.6427777761161522, "beta2": 0.997289150566182, "noise_size": 70
+
+DEBUG               = False  # flag that would change a number of behaviours (purely cosmetic)
+
+wandb_log           = True
+ray_tune            = False
+ray_tune_step       = 20
+save_logs           = True
+
+device              = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 in_the_wild_dir     = "/tank/local/hgi0312/data/release_in_the_wild"
 in_the_wild_pkl     = "/tank/local/ndf3868/GODDS/GAN/checkpoints/datasets/inthewild_test_ids.pickle"
@@ -17,7 +26,6 @@ train_with_wavegan  = True  # WaveGan whould be processed with additional noise
 data_sample_size    = 2500  # 100 - Debugging| 2500 - full training     Number of samples chosen from both training and test datasets
 gen_fake            = False # True - Debug   | False - full training    Toggle used in debugging that creates random audio instead of reading ASV dataset
 
-DEBUG               = False  # flag that would change a number of behaviours (purely cosmetic)
 
 SOX_SILENCE = [
     # trim all silence that is longer than 0.2s and louder than 1% volume (relative to the file)
@@ -26,15 +34,16 @@ SOX_SILENCE = [
 ]
 
 # FRAMES_NUMBER       = 190_000
-noise_size          = 100       # dimensionality of noise for wavegan
+noise_size          = 70       # dimensionality of noise for wavegan
 
-input_size          = 190_000   # Dimensionality of audio 
+# input_size          = 190_000   # Dimensionality of audio 
+input_size          = 131_072   # Dimensionality of audio 
 
 hidden_dim_gen      = 6         # The depth of Generator model
 hidden_dim_disc     = 2         # The depth of Discriminator model
 
-wave_gen_initial_depth  = 5
-wave_gen_final_depth    = 8
+wave_gen_initial_depth   = 5
+wave_gen_final_depth     = 8
 wave_disc_initial_depth  = 5
 wave_disc_final_depth    = 8
 
@@ -43,15 +52,19 @@ output_size         = 1         # Output size, prediction of wether the discrimi
 batch_size          = 8         # Batch size used in training
 
 lr                  = 1e-4*2    # Learning rate used in training
-lr_gen              = lr*2    # Learning rate used in training
-lr_dis              = lr/1.5    # Learning rate used in training
+lr_gen              = lr#0.009685600748667533      # Learning rate used in training
+lr_dis              = lr#0.00013827007668818942    # Learning rate used in training
 
-penalty             = 10
+penalty             = 0
 
-beta1               = 0.5
+beta1               = 0.6427777761161522
+beta2               = 0.997289150566182
 
 bootstrap_iterations= 1 #5      Number of iterations for bootstrapping 
-n_epochs            = 5 if DEBUG == False else 1 #15    Number of epochs 
+n_epochs            = 70 if DEBUG == False else 1 #15    Number of epochs 
+n_epochs_no_whisp   = int(n_epochs * 0.2)
+w_trainin_step      = 30
+g_trainin_step      = 5
 
 
 dataset_type = 'wild'           # supports ASV2019 'asv' and InTheWild 'wild'

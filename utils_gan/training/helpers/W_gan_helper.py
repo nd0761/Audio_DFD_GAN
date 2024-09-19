@@ -1,6 +1,6 @@
 import torch
 # https://github.com/Lornatang/WassersteinGAN_GP-PyTorch/blob/master/trainer.py
-def calculate_gradient_penalty(model, real, noised, device):
+def calculate_gradient_penalty(model, real, noised, device): #model=disc
     """Calculates the gradient penalty loss for WGAN GP"""
     # Random weight term for interpolation between real and fake data
     # print(real.shape)
@@ -21,5 +21,6 @@ def calculate_gradient_penalty(model, real, noised, device):
         only_inputs=True,
     )[0]
     gradients = gradients.view(gradients.size(0), -1)
+    gradients_norm = torch.sqrt(torch.sum(gradients ** 2, dim=1) + 1e-12)
     gradient_penalty = torch.mean((gradients.norm(2, dim=1) - 1) ** 2)
-    return gradient_penalty
+    return ((gradients_norm - 1) ** 2).mean()
