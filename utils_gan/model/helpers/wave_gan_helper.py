@@ -48,11 +48,15 @@ class Transposed1DConv(nn.Module):
             padding=11,
             upsample=None,
             output_padding=1,
-            use_batch_norm=False,):
+            use_batch_norm=False,
+            const_pad = None):
         super(Transposed1DConv, self).__init__()
 
+        if const_pad is None:
+            const_pad = kernel_size // 2
+
         self.upsample = upsample
-        reflection_pad = nn.ConstantPad1d(kernel_size // 2, value=0)
+        reflection_pad = nn.ConstantPad1d(const_pad, value=0)
         conv1d = nn.Conv1d(in_channels, out_channels, kernel_size, stride)
         conv1d.weight.data.normal_(0.0, 0.02)
         Conv1dTrans = nn.ConvTranspose1d(

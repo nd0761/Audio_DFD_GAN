@@ -93,7 +93,8 @@ def initialize_gan():
                                audio_dim=config.input_size, num_channels=1, 
                                initial_depth=config.wave_gen_initial_depth, 
                                  final_depth=config.wave_gen_final_depth).to(config.device)
-        gen_opt = torch.optim.Adam(gen.parameters(),    lr=config.lr_gen, betas=(config.beta1, config.beta2))
+        gen_opt = torch.optim.Adam(gen.parameters(),    lr=config.lr_gen, 
+                                   betas=(config.beta1, config.beta2))
 
         disc = WaveGANDiscriminator(audio_dim=config.input_size, 
                                     num_channels=1, 
@@ -230,6 +231,9 @@ def initialize_all():
 
 def run_experiment(config_dict):
     os.environ["RAY_memory_usage_threshold"] = '0.98'
+    config.n_epochs = 10
+    config.n_test = config.n_epochs + 1
+    config.n_epochs_no_whisp = config.n_epochs + 1
     config.wandb_log = False
     config.ray_tune  = True
     config.save_logs = False

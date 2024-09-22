@@ -36,18 +36,16 @@ def save_checkpoint(ckpt_dir, epoch,
     if config.save_logs: torch.save(ckpt_dict, ckpt_path)
     return ckpt_dict
 
-def log_audio(gen, dataloader, epoch, logs_dir):
+def log_audio(gen, data, sr, epoch, logs_dir, z):
     from scipy.io.wavfile import write
     import soundfile as sf
     gen.eval()
-
-    data, sr, label, gen_type = next(iter(dataloader))
 
     sr = sr[0]
     data = data[0][None, :].to(config.device)
     # print(data[0, :30, :30])
 
-    z = torch.randn(1, config.noise_size).to(config.device)
+    # z = torch.randn(1, config.noise_size).to(config.device)
     noised = gen(data, z).cpu().detach().numpy()
     data = data.cpu().detach().numpy()
 

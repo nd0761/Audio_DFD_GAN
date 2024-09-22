@@ -15,6 +15,9 @@ def full_cycle(criterion,
     ### --- UPDATE DISCRIMINATOR ---
     disc_opt.zero_grad()
 
+    if config.train_with_wavegan: z = torch.randn(data.shape[0], config.noise_size).to(config.device)
+    else: z = None
+
     if config.train_with_wavegan: noised_audio = gen(data, z)
     else: noised_audio = gen(data)
 
@@ -37,6 +40,9 @@ def full_cycle(criterion,
     ### --- UPDATE WHISPER MODELS ---
     if cur_step is not None and cur_step % config.w_trainin_step == 0:
         whisp_opt.zero_grad()
+
+        if config.train_with_wavegan: z = torch.randn(data.shape[0], config.noise_size).to(config.device)
+        else: z = None
 
         if config.train_with_wavegan: noised_audio = gen(data, z)
         else: noised_audio = gen(data)
@@ -66,6 +72,9 @@ def full_cycle(criterion,
     if cur_step is not None and cur_step % config.w_trainin_step == 0:
         gen_opt.zero_grad()
 
+        if config.train_with_wavegan: z = torch.randn(data.shape[0], config.noise_size).to(config.device)
+        else: z = None
+
         if config.train_with_wavegan: noised_audio = gen(data, z)
         else: noised_audio = gen(data)
         
@@ -75,8 +84,8 @@ def full_cycle(criterion,
 
         nois_whisp_pred = torch.squeeze(whisp(nois_whisp_with_disc), 1)
 
-        w_nois_loss = criterion(nois_whisp_pred, reverse_label) # make whisp predict nosied data as real label(label)
-        d_nois_loss = criterion(nois_disc_pred, torch.ones_like(nois_disc_pred))
+        w_nois_loss = criterion(nois_whisp_pred, reverse_label) # make whisp predict nosied data as reverse to what it should
+        d_nois_loss = criterion(nois_disc_pred, torch.ones_like(nois_disc_pred)) # make disc predict as real(1)
 
         errG = d_nois_loss * 0.8 + w_nois_loss * 0.2
         G_D = d_nois_loss.item()
@@ -87,12 +96,15 @@ def full_cycle(criterion,
         if cur_step_g % config.g_trainin_step == 0:
             gen_opt.zero_grad()
 
+            if config.train_with_wavegan: z = torch.randn(data.shape[0], config.noise_size).to(config.device)
+            else: z = None
+
             if config.train_with_wavegan: noised_audio = gen(data, z)
             else: noised_audio = gen(data)
             
             nois_disc_pred = disc(noised_audio)
 
-            d_nois_loss = criterion(nois_disc_pred, torch.ones_like(nois_disc_pred))
+            d_nois_loss = criterion(nois_disc_pred, torch.ones_like(nois_disc_pred)) # make disc predict as real(1)
 
             errG = d_nois_loss
             G_D = d_nois_loss.item()

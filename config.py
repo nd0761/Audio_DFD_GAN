@@ -34,7 +34,7 @@ SOX_SILENCE = [
 ]
 
 # FRAMES_NUMBER       = 190_000
-noise_size          = 70       # dimensionality of noise for wavegan
+noise_size          = 128       # dimensionality of noise for wavegan
 
 # input_size          = 190_000   # Dimensionality of audio 
 input_size          = 131_072   # Dimensionality of audio 
@@ -51,11 +51,11 @@ output_size         = 1         # Output size, prediction of wether the discrimi
 
 batch_size          = 8         # Batch size used in training
 
-lr                  = 1e-4*2    # Learning rate used in training
-lr_gen              = lr#0.009685600748667533      # Learning rate used in training
-lr_dis              = lr#0.00013827007668818942    # Learning rate used in training
+lr                  = 1e-4    # Learning rate used in training
+lr_gen              = lr #0.009685600748667533      # Learning rate used in training
+lr_dis              = lr*3 #0.00013827007668818942    # Learning rate used in training
 
-penalty             = 0
+penalty             = 0 #9
 
 beta1               = 0.6427777761161522
 beta2               = 0.997289150566182
@@ -63,8 +63,9 @@ beta2               = 0.997289150566182
 bootstrap_iterations= 1 #5      Number of iterations for bootstrapping 
 n_epochs            = 70 if DEBUG == False else 1 #15    Number of epochs 
 n_epochs_no_whisp   = int(n_epochs * 0.2)
+n_test              = 3
 w_trainin_step      = 30
-g_trainin_step      = 5
+g_trainin_step      = 1
 
 
 dataset_type = 'wild'           # supports ASV2019 'asv' and InTheWild 'wild'

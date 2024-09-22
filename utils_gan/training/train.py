@@ -34,6 +34,10 @@ def train(train_with_wisper,
             criterion,
             n_epochs, 
             logs_dir, ckpt_dir):
+    if config.save_logs:
+        log_audio_data, log_audio_sr, _, _ = next(iter(test_dataloader))
+        if config.train_with_wavegan: log_audio_noise = torch.randn(1, config.noise_size).to(config.device)
+        else: log_audio_noise=None
     bonafide_class = train_dataset.bonafide_class
     # print(config.batch_size)
     # return None
@@ -67,7 +71,7 @@ def train(train_with_wisper,
             epoch, wandb_proj,
             test_dataloader, logs_dir)
         
-        if epoch % 3 == 0 or epoch == n_epochs-1:
+        if epoch != 0 and epoch % config.n_test == 0 or epoch == n_epochs-1:
             predictions = produce_prediction_dict(train_with_wisper,
                                                 test_dataloader, bonafide_class,
                                                 gen, disc, whisp)
@@ -103,13 +107,13 @@ def train(train_with_wisper,
             #     )
 
         if config.save_logs: 
-            orig_wav, nois_wav = log_audio(gen, test_dataloader, f'epoch_{epoch}', logs_dir)
+            orig_wav, nois_wav = log_audio(gen, log_audio_data, log_audio_sr, f'epoch_{epoch}', logs_dir, log_audio_noise)
             audio_files = [
                 orig_wav,
                 nois_wav
             ]
             spec_files = [
-                os.path.join(logs_dir, 'spectrograms', f'epoch_{epoch}_orig.png'),
+                os.path.join(logs_dir, 'spectrograms', f'orig.png'),
                 os.path.join(logs_dir, 'spectrograms', f'epoch_{epoch}_nois.png')]
             for a_f, s_f in zip(audio_files, spec_files):
                 log_spectrogram(a_f, s_f)
@@ -131,6 +135,11 @@ def train_epoch(train_with_wisper, dataloader, bonafide_class,
     # real_audio = torch.randn(16, 1, 190_000)  # Batch size of 16, input dim [1, 190_000]
     # discriminator = WaveGANDiscriminator()
     # real_or_fake = discriminator(real_audio)  # Output shape will be [16, 1]
+
+    if config.save_logs:
+        log_audio_data, log_audio_sr, _, _ = next(iter(test_dataloader))
+        if config.train_with_wavegan: log_audio_noise = torch.randn(1, config.noise_size).to(config.device)
+        else: log_audio_noise=None
     
     gen.train()
     disc.train()
@@ -213,7 +222,7 @@ def train_epoch(train_with_wisper, dataloader, bonafide_class,
                     })
 
         if config.save_logs and cur_step%500 == 0: 
-            orig_wav, nois_wav = log_audio(gen, test_dataloader, cur_step, logs_dir)
+            orig_wav, nois_wav = log_audio(gen, log_audio_data, log_audio_sr, cur_step, logs_dir, log_audio_noise)
             audio_files = [
                 orig_wav,
                 nois_wav
