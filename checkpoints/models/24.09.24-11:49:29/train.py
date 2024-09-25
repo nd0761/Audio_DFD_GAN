@@ -202,24 +202,22 @@ def train_epoch(dataloader, bonafide_class,
             pbar_desc_loss = f"Gen L: {mgl:.3f} || "+ \
                     f"Dis L: {mdl:.3f} || "+ \
                     f"Whi L: {mwl:.3f}"
-            uns_loss = ((mgl >= 20 or mdl >= 20) and (mgl != np.nan and mdl != np.nan))
-            uns_grad = (cur_step != 0 and (abs(grad_g) < 1e-9 or abs(grad_d) < 1e-9))
-            if uns_loss or uns_grad:
-                problems = []
-                if uns_loss:
-                    problems.append('loss')
-                if uns_grad:
-                    problems.append('grad')
-                problems = ' '.join(problems)
-                pbar_desc_loss = f'UNSTABLE {problems} '+pbar_desc_loss
-                # raise ValueError()
+            if ((mgl >= 20 or mdl >= 20) and (mgl != np.nan and mdl != np.nan)):# or (cur_step != 0 and (grad_g < 1e-9 or grad_d < 1e-9)):
+                print("GAN is unstable!!! Failed epoch", epoch, "on step", cur_step)
+                print(grad_g < 1e-7, grad_d < 1e-7)
+                print('Gradients: Gen', f'{grad_g:7.6e}  Dis {grad_d:7.6f}')
+                print('Loss:      Gen',      f'{mgl:7.6e}  Dis {mdl:7.6f}')
+                raise ValueError()
             if config.save_logs: pbar.set_description(pbar_desc)
             if config.save_logs: pbar_loss.set_description(pbar_desc_loss)
             
-            if wandb_proj is not None:
-                wandb_data['Generator grad']     = grad_g
-                wandb_data['Discriminator grad'] = grad_d
-                wandb_proj.log(wandb_data)
+            if wandb_proj is not None: 
+                if t_cur is not None and t_cur % config.w_trainin_step == 0:
+                    # grad_g = gen.conv[0].transpose_ops[1].weight.grad.clone().mean()
+                    # grad_d = disc.conv[0].weight.grad.clone().mean()
+                    wandb_data['Generator grad']     = grad_g
+                    wandb_data['Discriminator grad'] = grad_d
+                    wandb_proj.log(wandb_data)
 
         if config.save_logs and cur_step%config.log_au_spec == 0: 
             orig_wav, nois_wav = log_audio(gen, log_audio_data, log_audio_sr, cur_step, logs_dir, log_audio_noise)

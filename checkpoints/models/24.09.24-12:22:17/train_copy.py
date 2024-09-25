@@ -202,16 +202,12 @@ def train_epoch(dataloader, bonafide_class,
             pbar_desc_loss = f"Gen L: {mgl:.3f} || "+ \
                     f"Dis L: {mdl:.3f} || "+ \
                     f"Whi L: {mwl:.3f}"
-            uns_loss = ((mgl >= 20 or mdl >= 20) and (mgl != np.nan and mdl != np.nan))
-            uns_grad = (cur_step != 0 and (abs(grad_g) < 1e-9 or abs(grad_d) < 1e-9))
-            if uns_loss or uns_grad:
-                problems = []
-                if uns_loss:
-                    problems.append('loss')
-                if uns_grad:
-                    problems.append('grad')
-                problems = ' '.join(problems)
-                pbar_desc_loss = f'UNSTABLE {problems} '+pbar_desc_loss
+            if ((mgl >= 20 or mdl >= 20) and (mgl != np.nan and mdl != np.nan)) or (cur_step != 0 and (grad_g < 1e-9 or grad_d < 1e-9)):
+                pbar_desc_loss = 'UNSTABLE '+pbar_desc_loss
+                # print("GAN is unstable!!! Failed epoch", epoch, "on step", cur_step)
+                # print(grad_g < 1e-7, grad_d < 1e-7)
+                # print('Gradients: Gen', f'{grad_g:7.6e}  Dis {grad_d:7.6f}')
+                # print('Loss:      Gen',      f'{mgl:7.6e}  Dis {mdl:7.6f}')
                 # raise ValueError()
             if config.save_logs: pbar.set_description(pbar_desc)
             if config.save_logs: pbar_loss.set_description(pbar_desc_loss)

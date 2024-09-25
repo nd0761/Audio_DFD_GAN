@@ -9,7 +9,7 @@ from model.GAN import Generator, Discriminator
 from model.whisper_models import Whispers
 from model.wavegan import WaveGANGenerator, WaveGANDiscriminator
 
-from training.loss import generator_loss, discriminator_loss, whisp_loss
+# from training.loss import generator_loss, discriminator_loss, whisp_loss
 from training.metrics import test_metrics, set_up_metrics_list
 from training.train import train
 from training.distribution_visualizer import visualize_separate

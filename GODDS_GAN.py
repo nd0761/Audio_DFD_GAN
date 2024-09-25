@@ -7,6 +7,7 @@ import numpy as np
 
 import random
 import json
+import shutil
 
 import torch
 from torch import nn
@@ -178,6 +179,9 @@ def set_up_logs_dir():
 
     os.makedirs(os.path.join(config.logs_dir, timestamp))
     os.makedirs(os.path.join(config.ckpt_dir, timestamp))
+    
+    shutil.copyfile('/tank/local/ndf3868/GODDS/GAN/utils_gan/model/wavegan.py', os.path.join(config.ckpt_dir, timestamp, 'wavegan_copy.py'))
+    shutil.copyfile('/tank/local/ndf3868/GODDS/GAN/utils_gan/training/train.py', os.path.join(config.ckpt_dir, timestamp, 'train_copy.py'))
 
     os.makedirs(os.path.join(config.logs_dir, timestamp, 'distr'))
     os.makedirs(os.path.join(config.logs_dir, timestamp, 'metrics'))
@@ -231,7 +235,8 @@ def initialize_all():
 
 def run_experiment(config_dict):
     os.environ["RAY_memory_usage_threshold"] = '0.98'
-    config.n_epochs = 10
+    config.n_epochs = 3
+    
     config.n_test = config.n_epochs + 1
     config.n_epochs_no_whisp = config.n_epochs + 1
     config.wandb_log = False
@@ -241,9 +246,10 @@ def run_experiment(config_dict):
     config.lr_gen  = config_dict['lr_gen']
     config.lr_dis  = config_dict['lr_dis']
     config.penalty = config_dict['penalty']
-    config.beta1   = config_dict['beta1']
-    config.beta2   = config_dict['beta2']
-    config.noise_size = config_dict['noise_size']
+    # config.beta1   = config_dict['beta1']
+    # config.beta2   = config_dict['beta2']
+    config.g_trainin_step = config_dict['g_trainin_step']
+    config.d_trainin_step = 100-config_dict['g_trainin_step']
 
     criterion, gen, disc, whisp, gen_opt, disc_opt, whisp_opt, \
         train_dataset, train_dataloader, test_dataset, test_dataloader = initialize_all()
@@ -262,6 +268,13 @@ if __name__ == "__main__":
 
     criterion, gen, disc, whisp, gen_opt, disc_opt, whisp_opt, \
         train_dataset, train_dataloader, test_dataset, test_dataloader = initialize_all()
+    
+    # for (data, sr, label, gen_type) in train_dataloader:
+    #     print(data[0, 0, :10])
+    #     print(data[0, 0].min(), data[0, 0].max())
+    #     break
+    # sys.exit(0)
+    # return None
 
     for _ in range(config.bootstrap_iterations):
         bootstrap_iteration(
